@@ -4,14 +4,38 @@ import com.example.votingcreator.model.Candidate;
 import com.example.votingcreator.model.Creator;
 import com.example.votingcreator.model.Event;
 import com.example.votingcreator.model.Nomination;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.List;
 
+
 public class JDBCManager {
 
 
-    public static void addCreator(Creator creator){
+    private String databaseUrl;
+
+    private String databaseName;
+
+    private String userName;
+
+    private String password;
+
+    public JDBCManager(){
+
+    }
+
+    public JDBCManager(String databaseUrl, String databaseName, String userName, String password) {
+        this.databaseUrl = databaseUrl;
+        this.databaseName = databaseName;
+        this.userName = userName;
+        this.password = password;
+    }
+
+    public void addCreator(Creator creator){
         String creatorId = creator.getCreatorId();
         String creatorName = creator.getCreatorName();
         String creatorInfo = creator.getCreatorInfo();
@@ -22,8 +46,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/voting_application",
-                    "root", "root");
+                    databaseUrl+databaseName,
+                    userName, password);
 
             // mydb is database
             // mydbuser is name of database
@@ -45,7 +69,10 @@ public class JDBCManager {
         System.out.println(rowsAffected + " rows affected.");
     }
 
-    public static Creator getCreator(String creatorId){
+    public Creator getCreator(String creatorId){
+
+        System.out.println(databaseUrl+databaseName);
+
         String creatorName="";
         String creatorInfo="";
         Connection connection = null;
@@ -53,8 +80,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/voting_application",
-                    "root", "root");
+                    databaseUrl+databaseName,
+                    userName, password);
 
             // mydb is database
             // mydbuser is name of database
@@ -83,7 +110,7 @@ public class JDBCManager {
         return new Creator(creatorId, creatorName, creatorInfo);
     }
 
-    public static void addEvent(Event event){
+    public void addEvent(Event event){
 
         String eventId = event.getEventId();
         String eventName = event.getEventName();
@@ -96,8 +123,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/voting_application",
-                    "root", "root");
+                    databaseUrl+databaseName,
+                    userName, password);
 
             // mydb is database
             // mydbuser is name of database
@@ -120,7 +147,7 @@ public class JDBCManager {
         System.out.println(rowsAffected + " rows affected.");
     }
 
-    public static Event getEvent(String creatorId, String eventId){
+    public Event getEvent(String creatorId, String eventId){
         String eventName="";
         String eventInfo="";
         Connection connection = null;
@@ -128,8 +155,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/voting_application",
-                    "root", "root");
+                    databaseUrl+databaseName,
+                    userName, password);
 
             // mydb is database
             // mydbuser is name of database
@@ -162,7 +189,7 @@ public class JDBCManager {
         return new Event(eventId, eventName, eventInfo, creatorId);
     }
 
-    public static void addNomination(String creatorId, Nomination nomination){
+    public void addNomination(String creatorId, Nomination nomination){
         int rowsAffected = 0;
         Connection connection = null;
         if(addCandidates(nomination.getCandidateList())){
@@ -170,8 +197,8 @@ public class JDBCManager {
                 // below two lines are used for connectivity.
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/voting_application",
-                        "root", "root");
+                        databaseUrl+databaseName,
+                        userName, password);
                 for(Candidate candidate : nomination.getCandidateList()){
                     String sql = "insert into nomination values (?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
@@ -190,7 +217,7 @@ public class JDBCManager {
         }
     }
 
-    private static boolean addCandidates(List<Candidate> candidateList){
+    private boolean addCandidates(List<Candidate> candidateList){
         int rowsAffected = 0;
 
         Connection connection = null;
@@ -198,8 +225,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/voting_application",
-                    "root", "root");
+                    databaseUrl+databaseName,
+                    userName, password);
 
             for(Candidate candidate : candidateList){
                 String sql = "insert into candidate values (?,?,?)";
@@ -218,5 +245,47 @@ public class JDBCManager {
         }
         System.out.println(rowsAffected + " rows affected for candidate");
         return candidateList.size() == rowsAffected ? true : false;
+    }
+
+    public boolean validateId(String idType, String value){
+        int count=0;
+        System.out.println("ID type: "+ idType);
+        System.out.println("ID value: "+ value);
+        String tableName = idType.substring(0, idType.length()-3);
+        System.out.println("Table name is: "+tableName);
+        Connection connection = null;
+        try {
+            // below two lines are used for connectivity.
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(
+                    databaseUrl+databaseName,
+                    userName, password);
+
+            // mydb is database
+            // mydbuser is name of database
+            // mydbuser is password of database
+
+            PreparedStatement statement;
+            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\""+value+"\"";
+            System.out.println(validateQuery);
+            statement = connection.prepareStatement(validateQuery);
+            ResultSet resultSet;
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+            System.out.println("Count: "+count);
+            resultSet.close();
+            statement.close();
+            connection.close();
+        }
+        catch (SQLException | ClassNotFoundException exception) {
+            System.out.println(exception);
+        }
+        if(count>0){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
