@@ -1,0 +1,23 @@
+html{
+    height:100%
+}
+
+body{
+    background-image: url("../../images/under_construction.jpg");
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+}
+h1{
+    font-size: 50px;
+}
+p{
+    font-size: 30px;
+}
+a{
+    color: blue;
+    font-size: 20px;
+}
