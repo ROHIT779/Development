@@ -3,6 +3,7 @@ html{
 }
 
 body{
+    /* background-color: #aaaaaa; */
     background-image: url("../../images/grey-flower.jpg");
     height: 100%;
     background-position: center;
