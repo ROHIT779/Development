@@ -5,6 +5,7 @@ import com.example.votingvoter.model.Voter;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.*;
+import java.util.Arrays;
 
 public class JDBCManager {
 
@@ -35,9 +36,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -48,15 +49,15 @@ public class JDBCManager {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, voterId);
             statement.setString(2, voterName);
-            statement.setBoolean(3, false);
-            statement.setString(4, voter.getEventId());
+            statement.setString(3, voter.getEventId());
+            statement.setBoolean(4, false);
 
             rowsAffected = statement.executeUpdate();
 
             statement.close();
             connection.close();
         } catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         System.out.println(rowsAffected + " rows affected addVoter.");
     }
@@ -67,9 +68,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -94,7 +95,7 @@ public class JDBCManager {
             connection.close();
         }
         catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         return new Voter(voterId, voterName, eventId, null);
     }
@@ -105,9 +106,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
 
@@ -143,7 +144,7 @@ public class JDBCManager {
             resultSet.close();
             statement.close();
         } catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         return acknowledgeVoter(voterId, eventId, vote, connection);
     }
@@ -168,9 +169,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -178,7 +179,7 @@ public class JDBCManager {
             // mydbuser is password of database
 
             PreparedStatement statement;
-            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\""+value+"\"";
+            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\'"+value+"\'";
             System.out.println(validateQuery);
             statement = connection.prepareStatement(validateQuery);
             ResultSet resultSet;
@@ -191,8 +192,8 @@ public class JDBCManager {
             statement.close();
             connection.close();
         }
-        catch (SQLException | ClassNotFoundException exception) {
-            System.out.println(exception);
+        catch (SQLException exception) {
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         if(count>0){
             return true;
