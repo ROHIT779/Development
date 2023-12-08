@@ -32,7 +32,7 @@ public class CreatorResource {
         System.out.println("Database Url: "+databaseUrl);
         System.out.println("Database Name: "+databaseName);
         System.out.println("Database Username: "+userName);
-        System.out.println("Database Password: "+databaseUrl);
+        System.out.println("Database Password: "+password);
 
         JDBCManager jdbcManager = new JDBCManager(databaseUrl, databaseName, userName, password);
         jdbcManager.addCreator(creator);

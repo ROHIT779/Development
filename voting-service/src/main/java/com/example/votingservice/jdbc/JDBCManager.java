@@ -4,6 +4,7 @@ import com.example.votingservice.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JDBCManager {
@@ -36,9 +37,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -68,7 +69,7 @@ public class JDBCManager {
             connection.close();
         }
         catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         return new EventWithNomination(event.getEventId(), event.getEventName(), event.getEventInfo(),event.getCreatorId(),
                 candidateList);
@@ -80,9 +81,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -109,7 +110,7 @@ public class JDBCManager {
             votingResult.setFinalResult(candidateResults);
         }
         catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         return votingResult;
     }
@@ -123,9 +124,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -133,7 +134,7 @@ public class JDBCManager {
             // mydbuser is password of database
 
             PreparedStatement statement;
-            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\""+value+"\"";
+            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\'"+value+"\'";
             System.out.println(validateQuery);
             statement = connection.prepareStatement(validateQuery);
             ResultSet resultSet;
@@ -146,13 +147,38 @@ public class JDBCManager {
             statement.close();
             connection.close();
         }
-        catch (SQLException | ClassNotFoundException exception) {
-            System.out.println(exception);
+        catch (SQLException exception) {
+            System.out.println(Arrays.toString(exception.getStackTrace()));
         }
         if(count>0){
             return true;
         }else{
             return false;
         }
+    }
+
+    public String deleteAllData(){
+        String[] tables = {"result","voter","nomination","candidate","event","creator"};
+        String output = "";
+        Connection connection = null;
+        try{
+            connection = DriverManager.getConnection(
+                    databaseUrl+"/"+databaseName,
+                    userName, password);
+            for(String table : tables){
+                PreparedStatement statement;
+                String deleteQuery = "delete from "+table;
+                System.out.println(deleteQuery);
+                statement = connection.prepareStatement(deleteQuery);
+                int rowsAffected=0;
+                rowsAffected = statement.executeUpdate();
+                output += rowsAffected + " rows affected in table: "+table+"\n";
+                statement.close();
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException(exception);
+        }
+        System.out.println(output);
+        return output;
     }
 }

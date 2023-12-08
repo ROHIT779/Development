@@ -44,9 +44,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -71,16 +71,16 @@ public class JDBCManager {
 
     public Creator getCreator(String creatorId){
 
-        System.out.println(databaseUrl+databaseName);
+        System.out.println(databaseUrl+"/"+databaseName);
 
         String creatorName="";
         String creatorInfo="";
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -121,9 +121,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -153,9 +153,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -195,15 +195,15 @@ public class JDBCManager {
         if(addCandidates(nomination.getCandidateList())){
             try {
                 // below two lines are used for connectivity.
-                Class.forName("com.mysql.cj.jdbc.Driver");
+                //Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(
-                        databaseUrl+databaseName,
+                        databaseUrl+"/"+databaseName,
                         userName, password);
                 for(Candidate candidate : nomination.getCandidateList()){
                     String sql = "insert into nomination values (?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
-                    statement.setString(1, nomination.getEventId());
-                    statement.setString(2, candidate.getCandidateId());
+                    statement.setString(1, candidate.getCandidateId());
+                    statement.setString(2, nomination.getEventId());
                     statement.executeUpdate();
                     statement.close();
                     rowsAffected++;
@@ -223,9 +223,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             for(Candidate candidate : candidateList){
@@ -256,9 +256,9 @@ public class JDBCManager {
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+databaseName,
+                    databaseUrl+"/"+databaseName,
                     userName, password);
 
             // mydb is database
@@ -266,7 +266,7 @@ public class JDBCManager {
             // mydbuser is password of database
 
             PreparedStatement statement;
-            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\""+value+"\"";
+            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\'"+value+"\'";
             System.out.println(validateQuery);
             statement = connection.prepareStatement(validateQuery);
             ResultSet resultSet;
@@ -279,7 +279,7 @@ public class JDBCManager {
             statement.close();
             connection.close();
         }
-        catch (SQLException | ClassNotFoundException exception) {
+        catch (SQLException exception) {
             System.out.println(exception);
         }
         if(count>0){
