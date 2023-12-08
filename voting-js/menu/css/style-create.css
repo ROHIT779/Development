@@ -1,0 +1,49 @@
+html{
+    height:100%
+}
+
+body{
+    background-image: url("../../images/vote1.jpg");
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+}
+
+.intro #header{
+    color: white;
+    background-color: black;
+    text-align: center;
+    font-size: 50px;
+}
+.intro #about{
+    color: white;
+    background-color: green;
+    text-align: center;
+    font-size: 20px
+}
+
+.form-and-link{
+    text-align: center;
+    font-size: 20px;
+}
+
+.intro,
+.form-and-link .form
+{
+    font-family: sans-serif;
+    color: black;
+    font-weight: bold;
+}
+.form-and-link .form .submit-button{
+    background-color: green;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+    width: 100px;
+    height: auto;
+}
+.form-and-link .go-back-link{
+    text-align: center;
+    color: blue;
+    font-weight: bold;
+}

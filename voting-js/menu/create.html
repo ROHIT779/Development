@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Create Poll</title>
+        <link rel="stylesheet" href="./css/style-create.css">
+    </head>
+
+    <body>
+        <div class="intro">
+            <h1 id="header">Create a poll</h1>
+            <p id="about">Fill in the details below to create a poll</p>
+        </div>
+        
+        <div class="form-and-link">
+            <form class="form">
+                <label for="eventName">Event Name:</label>
+                <input type="text" id="eventName" name="eventName" placeholder="Enter event name" size="50"><br>
+                <label for="eventInfo">Event Details:</label>
+                <textarea id="eventInfo" name="eventInfo" placeholder="Enter event details" rows="4" cols="50"></textarea><br>
+                <label for="noms">Number of nominations:</label>
+                <input type="number" id="noms" name="noms" min="2" max="5"><br>
+                <input class="submit-button" type="submit" value="Submit">
+            </form>
+            <a class="go-back-link" href="../index.html">Go back</a>
+        </div>
+        
+    </body>
+</html>
