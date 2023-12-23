@@ -1,13 +1,101 @@
 package com.example.votingcreator;
 
+import com.example.votingcreator.model.Candidate;
+import com.example.votingcreator.model.Creator;
+import com.example.votingcreator.model.Event;
+import com.example.votingcreator.model.Nomination;
+import com.example.votingcreator.resource.CreatorResource;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class VotingCreatorApplicationTests {
 
+	private String votingServicePort="8083";
+	private String port= "8081";
+
+	private RestTemplate restTemplate = new RestTemplate();
+
+	@AfterEach
+	void tearDown() throws URISyntaxException {
+		try{
+			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/voting/delete-all/"));
+		}catch(ResourceAccessException e){
+			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+votingServicePort);
+		}
+	}
+
 	@Test
-	void contextLoads() {
+	void testCreatorSuccessfulWorkflow() throws URISyntaxException {
+		Creator creator = new Creator();
+		creator.setCreatorName("creator 1");
+		creator.setCreatorInfo("The first creator");
+		Creator creatorReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator, Creator.class);
+		assertThat(creatorReply.getCreatorName()).isEqualTo("creator 1");
+		assertThat(creatorReply.getCreatorInfo()).isEqualTo("The first creator");
+
+		Creator creatorGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()), Creator.class);
+		assertThat(creatorGetReply.getCreatorName()).isEqualTo(creatorReply.getCreatorName());
+		assertThat(creatorGetReply.getCreatorInfo()).isEqualTo(creatorReply.getCreatorInfo());
+		assertThat(creatorGetReply.getCreatorId()).isEqualTo(creatorReply.getCreatorId());
+
+		Event event = new Event();
+		event.setEventName("event 1");
+		event.setEventInfo("first event");
+		Event eventReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event"), event, Event.class);
+		assertThat(eventReply.getEventName()).isEqualTo("event 1");
+		assertThat(eventReply.getEventInfo()).isEqualTo("first event");
+
+		Event eventGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event/"+eventReply.getEventId()), Event.class);
+		assertThat(eventGetReply.getEventName()).isEqualTo(eventReply.getEventName());
+		assertThat(eventGetReply.getEventInfo()).isEqualTo(eventReply.getEventInfo());
+		assertThat(eventGetReply.getEventId()).isEqualTo(eventReply.getEventId());
+
+		List<Candidate> candidateList = new ArrayList<>();
+		Candidate candidate1 = new Candidate();
+		candidate1.setCandidateName("X1");
+		candidate1.setCandidateInfo("Experienced");
+		Candidate candidate2 = new Candidate();
+		candidate2.setCandidateName("X2");
+		candidate2.setCandidateInfo("Beginner");
+		candidateList.add(candidate1);
+		candidateList.add(candidate2);
+		Nomination nomination = new Nomination();
+		nomination.setCandidateList(candidateList);
+
+		Nomination nominationReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event/"+eventReply.getEventId()+"/nomination"), nomination, Nomination.class);
+		assertThat(nominationReply.getCandidateList().size()).isEqualTo(2);
+		assertThat(nominationReply.getEventId()).isEqualTo(eventReply.getEventId());
+		assertThat(nominationReply.getCandidateList().get(0).getCandidateName()).isEqualTo(candidate1.getCandidateName());
+		assertThat(nominationReply.getCandidateList().get(0).getCandidateInfo()).isEqualTo(candidate1.getCandidateInfo());
+		assertThat(nominationReply.getCandidateList().get(1).getCandidateName()).isEqualTo(candidate2.getCandidateName());
+		assertThat(nominationReply.getCandidateList().get(1).getCandidateInfo()).isEqualTo(candidate2.getCandidateInfo());
+
+		Nomination nominationGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event/"+eventReply.getEventId()+"/nomination"), Nomination.class);
+		assertThat(nominationGetReply.getCandidateList().size()).isEqualTo(2);
+		assertThat(nominationGetReply.getEventId()).isEqualTo(eventReply.getEventId());
+		assertThat(nominationGetReply.getCandidateList().get(0).getCandidateName()).isEqualTo(candidate1.getCandidateName());
+		assertThat(nominationGetReply.getCandidateList().get(0).getCandidateInfo()).isEqualTo(candidate1.getCandidateInfo());
+		assertThat(nominationGetReply.getCandidateList().get(1).getCandidateName()).isEqualTo(candidate2.getCandidateName());
+		assertThat(nominationGetReply.getCandidateList().get(1).getCandidateInfo()).isEqualTo(candidate2.getCandidateInfo());
 	}
 
 }
