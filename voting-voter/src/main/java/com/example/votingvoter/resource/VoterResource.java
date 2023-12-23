@@ -1,60 +1,66 @@
 package com.example.votingvoter.resource;
 
 import com.example.votingvoter.generator.IDGenerator;
+import com.example.votingvoter.helpers.VoterHelper;
 import com.example.votingvoter.jdbc.JDBCManager;
 import com.example.votingvoter.model.Candidate;
+import com.example.votingvoter.model.EventWithNomination;
 import com.example.votingvoter.model.Vote;
 import com.example.votingvoter.model.Voter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping("/event/{eventId}/voter")
+@RequestMapping("/event/{eventId}")
 public class VoterResource {
 
-    @Value("${database.url}")
-    private String databaseUrl;
+    private final VoterHelper helper;
 
-    @Value("${database.name}")
-    private String databaseName;
+    @Autowired
+    public VoterResource(VoterHelper helper){
+        this.helper=helper;
+    }
 
-    @Value("${database.username}")
-    private String userName;
-
-    @Value("${database.password}")
-    private String password;
-
-    @PostMapping("/")
+    @PostMapping("/voter")
     public ResponseEntity createVoter(@PathVariable("eventId") String eventId, @RequestBody Voter voter){
-        JDBCManager jdbcManager = new JDBCManager(databaseUrl,databaseName,userName,password);
-        if(jdbcManager.validateId("event_id",eventId)){
-            voter.setVoterId(IDGenerator.getRandomId());
-            voter.setEventId(eventId);
-            jdbcManager.addVoter(voter);
-            return new ResponseEntity(voter, HttpStatus.CREATED);
+        Voter voterReply=helper.createVoter(eventId,voter);
+        if(voterReply!=null){
+            return new ResponseEntity(voterReply,HttpStatus.OK);
         }else{
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
     }
-    @PostMapping("/{voterId}/vote")
+    @PostMapping("/voter/{voterId}/vote")
     public ResponseEntity postVote(@PathVariable("eventId") String eventId, @PathVariable("voterId") String voterId, @RequestBody Vote vote) throws SQLException {
-        JDBCManager jdbcManager = new JDBCManager(databaseUrl,databaseName,userName,password);
-        if(jdbcManager.validateId("event_id",eventId) && jdbcManager.validateId("voter_id",voterId) && jdbcManager.validateId("candidate_id",vote.getCandidateId())) {
-            return new ResponseEntity(jdbcManager.postVote(voterId, eventId, vote), HttpStatus.CREATED);
+        Voter voter=helper.castVote(eventId,voterId,vote);
+        if(voter!=null){
+            return new ResponseEntity(voter, HttpStatus.OK);
+        }else{
+            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/voter/{voterId}")
+    public ResponseEntity getVoter(@PathVariable("eventId") String eventId, @PathVariable("voterId") String voterId){
+        Voter voter=helper.getVoter(eventId,voterId);
+        if(voter!=null){
+            return new ResponseEntity(voter,HttpStatus.OK);
         }else{
             return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/{voterId}")
-    public ResponseEntity getVoter(@PathVariable("eventId") String eventId, @PathVariable("voterId") String voterId){
-        JDBCManager jdbcManager = new JDBCManager(databaseUrl,databaseName,userName,password);
-        if(jdbcManager.validateId("event_id",eventId) && jdbcManager.validateId("voter_id",voterId)) {
-            return new ResponseEntity(jdbcManager.getVoter(voterId),HttpStatus.OK);
+    @GetMapping("/")
+    public ResponseEntity getEventDetails(@PathVariable("eventId") String eventId){
+        EventWithNomination eventWithNomination = helper.getEventDetails(eventId);
+        if(eventWithNomination!=null){
+            return new ResponseEntity(eventWithNomination,HttpStatus.OK);
         }else{
             return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
         }

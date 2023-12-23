@@ -1,38 +1,31 @@
 package com.example.votingcreator.jdbc;
 
-import com.example.votingcreator.model.Candidate;
-import com.example.votingcreator.model.Creator;
-import com.example.votingcreator.model.Event;
-import com.example.votingcreator.model.Nomination;
+import com.example.votingcreator.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-
+@Service
 public class JDBCManager {
 
+    @Autowired
+    private JDBCProperties jdbcProperties;
 
-    private String databaseUrl;
-
-    private String databaseName;
-
-    private String userName;
-
-    private String password;
-
-    public JDBCManager(){
-
-    }
-
-    public JDBCManager(String databaseUrl, String databaseName, String userName, String password) {
-        this.databaseUrl = databaseUrl;
-        this.databaseName = databaseName;
-        this.userName = userName;
-        this.password = password;
+    @Autowired
+    public JDBCManager(JDBCProperties jdbcProperties){
+        this.jdbcProperties=jdbcProperties;
+        System.out.println("JDBC URL: "+this.jdbcProperties.getDatabaseUrl());
+        System.out.println("JDBC URL: "+this.jdbcProperties.getDatabaseName());
+        System.out.println("JDBC URL: "+this.jdbcProperties.getUserName());
+        System.out.println("JDBC URL: "+this.jdbcProperties.getPassword());
     }
 
     public void addCreator(Creator creator){
@@ -46,8 +39,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -71,17 +64,17 @@ public class JDBCManager {
 
     public Creator getCreator(String creatorId){
 
-        System.out.println(databaseUrl+"/"+databaseName);
 
         String creatorName="";
         String creatorInfo="";
+        Creator creator=null;
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -100,6 +93,20 @@ public class JDBCManager {
                 System.out.println("creatorId : " + creatorId
                         + " creatorName : " + creatorName + "creatorInfo" + creatorInfo);
             }
+            creator=new Creator(creatorId, creatorName, creatorInfo);
+            statement = connection.prepareStatement("select event_id from event where creator_id=?");
+            statement.setString(1, creatorId);
+            resultSet = statement.executeQuery();
+            List<String> eventIds=new ArrayList<>();
+            while (resultSet.next()) {
+                String eventId = resultSet.getString("event_id").trim();
+                System.out.println("eventId : " + eventId);
+                eventIds.add(eventId);
+            }
+            for(String eventId: eventIds){
+                EventWithNomination eventWithNomination=getNominations(eventId);
+                creator.addEventWithNomination(eventWithNomination);
+            }
             resultSet.close();
             statement.close();
             connection.close();
@@ -107,7 +114,7 @@ public class JDBCManager {
         catch (Exception exception) {
             System.out.println(exception);
         }
-        return new Creator(creatorId, creatorName, creatorInfo);
+        return creator;
     }
 
     public void addEvent(Event event){
@@ -123,8 +130,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -155,8 +162,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -197,8 +204,8 @@ public class JDBCManager {
                 // below two lines are used for connectivity.
                 //Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(
-                        databaseUrl+"/"+databaseName,
-                        userName, password);
+                        jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                        jdbcProperties.getUserName(), jdbcProperties.getPassword());
                 for(Candidate candidate : nomination.getCandidateList()){
                     String sql = "insert into nomination values (?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
@@ -225,8 +232,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             for(Candidate candidate : candidateList){
                 String sql = "insert into candidate values (?,?,?)";
@@ -247,40 +254,95 @@ public class JDBCManager {
         return candidateList.size() == rowsAffected ? true : false;
     }
 
-    public boolean validateId(String idType, String value){
-        int count=0;
-        System.out.println("ID type: "+ idType);
-        System.out.println("ID value: "+ value);
-        String tableName = idType.substring(0, idType.length()-3);
-        System.out.println("Table name is: "+tableName);
+    public EventWithNomination getNominations(String eventId){
+        int count = 0;
+        Event event = new Event();
+        List<Candidate> candidateList = new ArrayList<>();
+
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
             // mydbuser is password of database
 
             PreparedStatement statement;
-            String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\'"+value+"\'";
-            System.out.println(validateQuery);
-            statement = connection.prepareStatement(validateQuery);
+            statement = connection.prepareStatement("select * from event left join nomination using (event_id) left join candidate using (candidate_id) where event_id=?");
+            statement.setString(1, eventId);
             ResultSet resultSet;
             resultSet = statement.executeQuery();
+            boolean isFirstRow=true;
             while (resultSet.next()) {
-                count = resultSet.getInt(1);
+                System.out.println(resultSet.getString("candidate_id"));
+                System.out.println(resultSet.getString("candidate_name"));
+                System.out.println(resultSet.getString("candidate_info"));
+
+                Candidate candidate = new Candidate(resultSet.getString("candidate_id"), resultSet.getString("candidate_name"), resultSet.getString("candidate_info"));
+                candidateList.add(candidate);
+                if(isFirstRow){
+                    event = new Event(resultSet.getString("event_id"), resultSet.getString("event_name"), resultSet.getString("event_info"), resultSet.getString("creator_id"));
+                    isFirstRow = false;
+                }
             }
-            System.out.println("Count: "+count);
             resultSet.close();
             statement.close();
             connection.close();
         }
+        catch (Exception exception) {
+            System.out.println(Arrays.toString(exception.getStackTrace()));
+        }
+        return new EventWithNomination(event.getEventId(), event.getEventName(), event.getEventInfo(),event.getCreatorId(),
+                candidateList);
+    }
+
+    public boolean validateId(String creatorId, String eventId){
+        int count=0;
+        System.out.println("validating creatorId: "+ creatorId);
+        System.out.println("validating eventId: "+ eventId);
+        Connection connection = null;
+        try {
+            // below two lines are used for connectivity.
+            //Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
+
+            // mydb is database
+            // mydbuser is name of database
+            // mydbuser is password of database
+
+            if(creatorId != null && eventId == null){
+                String validateCreatorQuery = "select count(*) from creator where creator_id=\'"+creatorId+"\'";
+                System.out.println(validateCreatorQuery);
+                PreparedStatement statement = connection.prepareStatement(validateCreatorQuery);
+                ResultSet resultSet= statement.executeQuery();
+                while(resultSet.next()){
+                    count = resultSet.getInt(1);
+                }
+                System.out.println("Count: "+count);
+                resultSet.close();
+                statement.close();
+            }else if(creatorId != null && eventId != null){
+                String validateCreatorWithEventQuery = "select count(*) from event where creator_id=\'"+creatorId+"\' and event_id=\'"+eventId+"\'";
+                System.out.println(validateCreatorWithEventQuery);
+                PreparedStatement statement = connection.prepareStatement(validateCreatorWithEventQuery);
+                ResultSet resultSet= statement.executeQuery();
+                while(resultSet.next()){
+                    count = resultSet.getInt(1);
+                }
+                System.out.println("Count: "+count);
+                resultSet.close();
+                statement.close();
+            }
+            connection.close();
+        }
         catch (SQLException exception) {
-            System.out.println(exception);
+            System.out.println(exception.getStackTrace());
         }
         if(count>0){
             return true;
