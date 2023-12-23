@@ -16,18 +16,6 @@ import java.util.List;
 @Service
 public class JDBCManager {
 
-    @Value("${database.url}")
-    private String databaseUrl;
-
-    @Value("${database.name}")
-    private String databaseName;
-
-    @Value("${database.username}")
-    private String userName;
-
-    @Value("${database.password}")
-    private String password;
-
     @Autowired
     private JDBCProperties jdbcProperties;
 
@@ -35,13 +23,9 @@ public class JDBCManager {
     public JDBCManager(JDBCProperties jdbcProperties){
         this.jdbcProperties=jdbcProperties;
         System.out.println("JDBC URL: "+this.jdbcProperties.getDatabaseUrl());
-    }
-
-    public JDBCManager(String databaseUrl, String databaseName, String userName, String password) {
-        this.databaseUrl = databaseUrl;
-        this.databaseName = databaseName;
-        this.userName = userName;
-        this.password = password;
+        System.out.println("JDBC URL: "+this.jdbcProperties.getDatabaseName());
+        System.out.println("JDBC URL: "+this.jdbcProperties.getUserName());
+        System.out.println("JDBC URL: "+this.jdbcProperties.getPassword());
     }
 
     public void addCreator(Creator creator){
@@ -55,8 +39,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -80,7 +64,6 @@ public class JDBCManager {
 
     public Creator getCreator(String creatorId){
 
-        System.out.println(databaseUrl+"/"+databaseName);
 
         String creatorName="";
         String creatorInfo="";
@@ -90,8 +73,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -147,8 +130,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -179,8 +162,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -221,8 +204,8 @@ public class JDBCManager {
                 // below two lines are used for connectivity.
                 //Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(
-                        databaseUrl+"/"+databaseName,
-                        userName, password);
+                        jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                        jdbcProperties.getUserName(), jdbcProperties.getPassword());
                 for(Candidate candidate : nomination.getCandidateList()){
                     String sql = "insert into nomination values (?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
@@ -249,8 +232,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             for(Candidate candidate : candidateList){
                 String sql = "insert into candidate values (?,?,?)";
@@ -281,8 +264,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database
@@ -326,8 +309,8 @@ public class JDBCManager {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    databaseUrl+"/"+databaseName,
-                    userName, password);
+                    jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
+                    jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             // mydb is database
             // mydbuser is name of database

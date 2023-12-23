@@ -22,7 +22,6 @@ public class JDBCManager {
         System.out.println("JDBC URL: "+this.jdbcProperties.getDatabaseName());
         System.out.println("JDBC URL: "+this.jdbcProperties.getUserName());
         System.out.println("JDBC URL: "+this.jdbcProperties.getPassword());
-
     }
 
 
