@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.*;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class JDBCManager {
@@ -100,6 +102,7 @@ public class JDBCManager {
     public Voter postVote(String voterId, String eventId, Vote vote) throws SQLException {
         int rowsAffected = 0;
 
+        System.out.println("VoterID in postVote(): "+voterId);
         Connection connection = null;
         try {
             // below two lines are used for connectivity.
@@ -108,47 +111,58 @@ public class JDBCManager {
                     jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
                     jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
-
-            String sqlGetResult = "select count from result where event_id=? and candidate_id=?";
-            PreparedStatement statement = connection.prepareStatement(sqlGetResult);
-            statement.setString(1, eventId);
-            statement.setString(2, vote.getCandidateId());
-
-            ResultSet resultSet;
-            resultSet = statement.executeQuery();
-            if(!resultSet.next()){
-                System.out.println("Inside If block");
-                String sqlAddResult = "insert into result values (?,?,?)";
-                PreparedStatement statement1 = connection.prepareStatement(sqlAddResult);
-                statement1.setString(1, eventId);
-                statement1.setString(2, vote.getCandidateId());
-                statement1.setInt(3, 1);
-                statement1.executeUpdate();
-                statement1.close();
-            }else{
-                System.out.println("Inside else");
-                    System.out.println("Rows fetched: "+resultSet.getInt(1));
-
-                    String sqlPostVote = "update result set count=? where event_id=? and candidate_id=?";
-                PreparedStatement statement2 = connection.prepareStatement(sqlPostVote);
-                statement2.setInt(1,resultSet.getInt(1)+1);
-                statement2.setString(2, eventId);
-                statement2.setString(3, vote.getCandidateId());
-                statement2.executeUpdate();
-                statement2.close();
+            Boolean hasVoted=false;
+            String sqlVoterAlreadyVoted = "select voted from voter where voter_id=?";
+            PreparedStatement statement = connection.prepareStatement(sqlVoterAlreadyVoted);
+            statement.setString(1, voterId);
+            ResultSet resultSet=statement.executeQuery();
+            if(resultSet.next()){
+                hasVoted=resultSet.getBoolean(1);
+                System.out.println("Inside hasVoted ResultSet If clause, hasVoted="+hasVoted);
             }
-
             resultSet.close();
             statement.close();
+
+            if(!hasVoted){
+                String sqlGetResult = "select count from result where event_id=? and candidate_id=?";
+                PreparedStatement statement0 = connection.prepareStatement(sqlGetResult);
+                statement0.setString(1, eventId);
+                statement0.setString(2, vote.getCandidateId());
+
+                ResultSet resultSet0 = statement0.executeQuery();
+                if(!resultSet0.next()){
+                    System.out.println("Inside If block");
+                    String sqlAddResult = "insert into result values (?,?,?)";
+                    PreparedStatement statement1 = connection.prepareStatement(sqlAddResult);
+                    statement1.setString(1, eventId);
+                    statement1.setString(2, vote.getCandidateId());
+                    statement1.setInt(3, 1);
+                    statement1.executeUpdate();
+                    statement1.close();
+                }else{
+                    System.out.println("Inside else");
+                    System.out.println("Rows fetched: "+resultSet0.getInt(1));
+
+                    String sqlPostVote = "update result set count=? where event_id=? and candidate_id=?";
+                    PreparedStatement statement2 = connection.prepareStatement(sqlPostVote);
+                    statement2.setInt(1,resultSet0.getInt(1)+1);
+                    statement2.setString(2, eventId);
+                    statement2.setString(3, vote.getCandidateId());
+                    statement2.executeUpdate();
+                    statement2.close();
+                }
+                resultSet0.close();
+                statement0.close();
+                return acknowledgeVoter(voterId, eventId, vote, connection);
+            }
         } catch (Exception exception) {
             System.out.println(Arrays.toString(exception.getStackTrace()));
         }
-        return acknowledgeVoter(voterId, eventId, vote, connection);
+        Logger.getAnonymousLogger().log(Level.WARNING, "Voter "+voterId+" already voted!");
+        return null;
     }
 
     public String getCreatorFromEvent(String eventId){
-
-
         Connection connection = null;
         String creatorId="";
         try {

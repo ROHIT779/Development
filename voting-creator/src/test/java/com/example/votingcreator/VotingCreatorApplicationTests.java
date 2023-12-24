@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class VotingCreatorApplicationTests {
@@ -98,4 +100,117 @@ class VotingCreatorApplicationTests {
 		assertThat(nominationGetReply.getCandidateList().get(1).getCandidateInfo()).isEqualTo(candidate2.getCandidateInfo());
 	}
 
+	@Test
+	void testInvalidCreatorIdBadRequest() throws URISyntaxException {
+		Creator creator = new Creator();
+		creator.setCreatorName("creator 1");
+		creator.setCreatorInfo("The first creator");
+		Creator creatorReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator, Creator.class);
+		assertThat(creatorReply.getCreatorName()).isEqualTo("creator 1");
+		assertThat(creatorReply.getCreatorInfo()).isEqualTo("The first creator");
+
+		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/1234"), Creator.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+	}
+
+	@Test
+	void testValidCreatorIdInvalidExistingEventIdBadRequest() throws URISyntaxException {
+		Creator creator1 = new Creator();
+		creator1.setCreatorName("creator 1");
+		creator1.setCreatorInfo("The first creator");
+		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator1, Creator.class);
+
+		Event event1 = new Event();
+		event1.setEventName("event 1");
+		event1.setEventInfo("first event");
+		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event"), event1, Event.class);
+
+		Creator creator2 = new Creator();
+		creator2.setCreatorName("creator 1");
+		creator2.setCreatorInfo("The first creator");
+		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator2, Creator.class);
+
+		Event event2 = new Event();
+		event2.setEventName("event 1");
+		event2.setEventInfo("first event");
+		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator2Reply.getCreatorId()+"/event"), event1, Event.class);
+
+		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event2Reply.getEventId()), Event.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+	}
+
+	@Test
+	void testValidCreatorIdInvalidExistingEventIdCreateNominationBadRequest() throws URISyntaxException {
+		Creator creator1 = new Creator();
+		creator1.setCreatorName("creator 1");
+		creator1.setCreatorInfo("The first creator");
+		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator1, Creator.class);
+
+		Event event1 = new Event();
+		event1.setEventName("event 1");
+		event1.setEventInfo("first event");
+		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event"), event1, Event.class);
+
+		Creator creator2 = new Creator();
+		creator2.setCreatorName("creator 1");
+		creator2.setCreatorInfo("The first creator");
+		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator2, Creator.class);
+
+		Event event2 = new Event();
+		event2.setEventName("event 1");
+		event2.setEventInfo("first event");
+		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator2Reply.getCreatorId()+"/event"), event1, Event.class);
+
+		List<Candidate> candidateList=new ArrayList<>();
+		Candidate candidate1=new Candidate();
+		candidate1.setCandidateName("candidate 1");
+		candidate1.setCandidateInfo("Experienced");
+
+		Candidate candidate2=new Candidate();
+		candidate2.setCandidateName("candidate 2");
+		candidate2.setCandidateInfo("Beginner");
+		candidateList.add(candidate1);
+		candidateList.add(candidate2);
+		Nomination nomination=new Nomination();
+		nomination.setCandidateList(candidateList);
+		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event2Reply.getEventId()+"/nomination"), nomination, Nomination.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+	}
+
+	@Test
+	void testValidCreatorIdInvalidExistingEventIdFetchNominationBadRequest() throws URISyntaxException {
+		Creator creator1 = new Creator();
+		creator1.setCreatorName("creator 1");
+		creator1.setCreatorInfo("The first creator");
+		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator1, Creator.class);
+
+		Event event1 = new Event();
+		event1.setEventName("event 1");
+		event1.setEventInfo("first event");
+		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event"), event1, Event.class);
+
+		Creator creator2 = new Creator();
+		creator2.setCreatorName("creator 1");
+		creator2.setCreatorInfo("The first creator");
+		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator2, Creator.class);
+
+		Event event2 = new Event();
+		event2.setEventName("event 1");
+		event2.setEventInfo("first event");
+		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator2Reply.getCreatorId()+"/event"), event1, Event.class);
+
+		List<Candidate> candidateList=new ArrayList<>();
+		Candidate candidate1=new Candidate();
+		candidate1.setCandidateName("candidate 1");
+		candidate1.setCandidateInfo("Experienced");
+
+		Candidate candidate2=new Candidate();
+		candidate2.setCandidateName("candidate 2");
+		candidate2.setCandidateInfo("Beginner");
+		candidateList.add(candidate1);
+		candidateList.add(candidate2);
+		Nomination nomination=new Nomination();
+		nomination.setCandidateList(candidateList);
+		Nomination nominationReply=this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event1Reply.getEventId()+"/nomination"), nomination, Nomination.class);
+		assertThat(nominationReply).isNotNull();
+
+		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event2Reply.getEventId()+"/nomination"), Nomination.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+	}
 }
