@@ -26,7 +26,7 @@ All developed projects of ROHIT779
    <p>Description: A person/organization who will create a voting event is called a Creator. With this service a creator will be added by providing creator's name and info.<p>
    <div>
    Sample Request:<br>
-   URI: POST /creator/<br>
+   URI: POST /service/creators/<br>
    Headers:<br>
    Content-Type: application/json<br>
    Request Body:<br>
@@ -59,7 +59,7 @@ All developed projects of ROHIT779
    <p>Description: Creator's details will be fetched with given creator ID.</p>
    <div>
    Sample Request:<br>
-   URI: GET /creator/fnvJJ<br>
+   URI: GET /service/creators/fnvJJ<br>
    </div>
 
    <div>
@@ -83,7 +83,7 @@ All developed projects of ROHIT779
    <p>Description: A voting event will be created by the creator by providing event-name and event-info.</p>
    <div>
    Sample Request:<br>
-   URI: POST /creator/fnvJJ/event<br>
+   URI: POST /service/creators/fnvJJ/events<br>
    Headers:<br>
    Content-Type: application/json<br>
    Request Body:<br>
@@ -116,7 +116,7 @@ All developed projects of ROHIT779
    <p>Description: Event details can be fetched by the creator by providing event ID.</p>
    <div>
    Sample Request:<br>
-   URI: GET /creator/fnvJJ/event/dEok6<br>
+   URI: GET /service/creators/fnvJJ/events/dEok6<br>
    </div>
 
    <div>
@@ -140,7 +140,7 @@ All developed projects of ROHIT779
    <p>Description: Creator can add candidate nominations by providing creator ID and event ID.</p>
    <div>
    Sample Request:<br>
-   URI: POST /creator/fnvJJ/event/dEok6/nomination<br>
+   URI: POST /service/creators/fnvJJ/events/dEok6/nominations<br>
    Headers:<br>
    Content-Type: application/json<br>
    Request Body:<br>
@@ -198,7 +198,7 @@ All developed projects of ROHIT779
    <p>Description: Creator can fetch candidate nomination details by providing creator ID and event ID.</p>
    <div>
    Sample Request:<br>
-   URI: GET /creator/fnvJJ/event/dEok6/nomination<br>
+   URI: GET /service/creators/fnvJJ/events/dEok6/nominations<br>
    </div>
 
    <div>
@@ -239,7 +239,7 @@ All developed projects of ROHIT779
    <p>Description: A voter will be registered to the voting-event by providing event ID and his name.</p>
    <div>
    Sample Request:<br>
-   URI: POST /event/dEok6/voter/<br>
+   URI: POST /service/events/dEok6/voters/<br>
    Headers:<br>
    Content-Type: application/json<br>
    Request Body:<br>
@@ -271,7 +271,7 @@ All developed projects of ROHIT779
    <p>Description: A voter can view his details.</p>
    <div>
    Sample Request:<br>
-   URI: GET /event/dEok6/voter/0bn3X<br>
+   URI: GET /service/events/dEok6/voters/0bn3X<br>
    </div>
 
    <div>
@@ -295,7 +295,7 @@ All developed projects of ROHIT779
    <p>Description: A voter can view nominated candidates before casting vote.</p>
    <div>
    Sample Request:<br>
-   URI: GET /event/dEok6/<br>
+   URI: GET /service/events/dEok6/<br>
    </div>
 
    <div>
@@ -336,7 +336,7 @@ All developed projects of ROHIT779
    <p>Description: A voter will be able to cast vote to his favorite candidate</p>
    <div>
    Sample Request:<br>
-   URI: POST /event/dEok6/voter/0bn3X/vote<br>
+   URI: POST /service/events/dEok6/voters/0bn3X/vote<br>
    Headers:<br>
    Content-Type: application/json<br>
    Request Body:<br>
@@ -370,7 +370,7 @@ All developed projects of ROHIT779
    <p>Description: This service is to get additional details of the Event</p>
    <div>
    Sample Request:<br>
-   URI: GET /voting/event/dEok6<br>
+   URI: GET /service/voting/events/dEok6<br>
    </div>
 
    <div>
@@ -411,7 +411,7 @@ All developed projects of ROHIT779
    <p>Description: Final result of the event can be viewed.</p>
    <div>
    Sample Request:<br>
-   URI: GET /voting/event/dEok6/result<br>
+   URI: GET /service/voting/events/dEok6/result<br>
    </div>
 
    <div>
@@ -450,7 +450,7 @@ All developed projects of ROHIT779
    <p>Description: An Admin level utility service to delete all data related to an event.</p>
    <div>
    Sample Request:<br>
-   URI: DELETE /voting/delete-all<br>
+   URI: DELETE /service/voting/delete-all<br>
    </div>
 
    <div>
@@ -479,17 +479,17 @@ All developed projects of ROHIT779
    <p><b>Validations performed: </b>
    <p>In case of any validation failure, Response will be <b>400 BAD_REQUEST</b> with no Response body.</p>
    <ol>
-   <li><b>GET /creator/{creatorId} :</b> If non-existing creatorId is passed, response status will be 400.</li>
-   <li><b>POST /creator/{creatorId}/event :</b> If non-existing creatorId is passed, response status will be 400.</li>
-   <li><b>GET /creator/{creatorId}/event/{eventId} :</b> If non-existing creatorId or eventId is passed OR an eventId is passed which is not created by creatorId, response status will be 400.</li>
-   <li><b>POST /creator/{creatorId}/event/{eventId}/nomination :</b> If non-existing creatorId or eventId is passed OR an eventId is passed which is not created by creatorId, response status will be 400.</li>
-   <li><b>GET /creator/{creatorId}/event/{eventId}/nomination :</b> If non-existing creatorId or eventId is passed OR an eventId is passed which is not created by creatorId, response status will be 400.</li>
-   <li><b>POST /event/{eventId}/voter/ :</b> If non-existing eventId is passed, response status will be 400.</li>
-   <li><b>GET /event/{eventId}/voter/{voterId} :</b> If non-existing eventId or voterId is passed OR a voterId is passed who is not registered with the eventId, response status will be 400.</li>
-   <li><b>GET /event/{eventId} :</b> If non-existing eventId is passed, response status will be 400.</li>
-   <li><b>POST /event/{eventId}/voter/{voterId}/vote :</b> If non-existing eventId or voterId or candidateId is passed OR a voterId or candidateId is passed who is not registered with the eventId OR voterId tries to vote more than once, response status will be 400.</li>
-   <li><b>GET voting/event/{eventId} :</b> If non-existing eventId is passed, response status will be 400.</li>
-   <li><b>GET voting/event/{eventId}/result :</b> If non-existing eventId is passed, response status will be 400.</li>
+   <li><b>GET /service/creators/{creatorId} :</b> If non-existing creatorId is passed, response status will be 400.</li>
+   <li><b>POST /service/creators/{creatorId}/events :</b> If non-existing creatorId is passed, response status will be 400.</li>
+   <li><b>GET /service/creators/{creatorId}/events/{eventId} :</b> If non-existing creatorId or eventId is passed OR an eventId is passed which is not created by creatorId, response status will be 400.</li>
+   <li><b>POST /service/creators/{creatorId}/events/{eventId}/nominations :</b> If non-existing creatorId or eventId is passed OR an eventId is passed which is not created by creatorId, response status will be 400.</li>
+   <li><b>GET /service/creators/{creatorId}/events/{eventId}/nominations :</b> If non-existing creatorId or eventId is passed OR an eventId is passed which is not created by creatorId, response status will be 400.</li>
+   <li><b>POST /service/events/{eventId}/voters/ :</b> If non-existing eventId is passed, response status will be 400.</li>
+   <li><b>GET /service/events/{eventId}/voters/{voterId} :</b> If non-existing eventId or voterId is passed OR a voterId is passed who is not registered with the eventId, response status will be 400.</li>
+   <li><b>GET /service/events/{eventId} :</b> If non-existing eventId is passed, response status will be 400.</li>
+   <li><b>POST /service/events/{eventId}/voters/{voterId}/vote :</b> If non-existing eventId or voterId or candidateId is passed OR a voterId or candidateId is passed who is not registered with the eventId OR voterId tries to vote more than once, response status will be 400.</li>
+   <li><b>GET /service/voting/events/{eventId} :</b> If non-existing eventId is passed, response status will be 400.</li>
+   <li><b>GET /service/voting/events/{eventId}/result :</b> If non-existing eventId is passed, response status will be 400.</li>
    </ol>
    </p>
    </li>

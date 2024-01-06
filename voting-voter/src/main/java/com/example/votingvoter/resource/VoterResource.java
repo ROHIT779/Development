@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping("/event/{eventId}")
+@RequestMapping("/service/events/{eventId}")
 public class VoterResource {
 
     private final VoterHelper helper;
@@ -27,7 +27,7 @@ public class VoterResource {
         this.helper=helper;
     }
 
-    @PostMapping("/voter")
+    @PostMapping("/voters")
     public ResponseEntity createVoter(@PathVariable("eventId") String eventId, @RequestBody Voter voter){
         Voter voterReply=helper.createVoter(eventId,voter);
         if(voterReply!=null){
@@ -36,7 +36,7 @@ public class VoterResource {
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
     }
-    @PostMapping("/voter/{voterId}/vote")
+    @PostMapping("/voters/{voterId}/vote")
     public ResponseEntity postVote(@PathVariable("eventId") String eventId, @PathVariable("voterId") String voterId, @RequestBody Vote vote) throws SQLException {
         Voter voter=helper.castVote(eventId,voterId,vote);
         if(voter!=null){
@@ -46,7 +46,7 @@ public class VoterResource {
         }
     }
 
-    @GetMapping("/voter/{voterId}")
+    @GetMapping("/voters/{voterId}")
     public ResponseEntity getVoter(@PathVariable("eventId") String eventId, @PathVariable("voterId") String voterId){
         Voter voter=helper.getVoter(eventId,voterId);
         if(voter!=null){
