@@ -86,7 +86,7 @@ class VotingServiceApplicationTests {
 	@AfterEach
 	void tearDown() throws URISyntaxException {
 		try{
-			restTemplate.delete(new URI("http://localhost:"+port+"/voting/delete-all/"));
+			restTemplate.delete(new URI("http://localhost:"+port+"/service/voting/delete-all/"));
 		}catch(ResourceAccessException e){
 			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+port);
 		}
@@ -94,7 +94,7 @@ class VotingServiceApplicationTests {
 
 	@Test
 	void testGetResultSuccess() throws URISyntaxException {
-		VotingResult resultReply=restTemplate.getForObject(new URI("http://localhost:"+port+"/voting/event/e1/result"), VotingResult.class);
+		VotingResult resultReply=restTemplate.getForObject(new URI("http://localhost:"+port+"/service/voting/events/e1/result"), VotingResult.class);
 		if(resultReply.getFinalResult().get(0).getCandidate().getCandidateId().equals("cnd1")){
 			assertThat(resultReply.getFinalResult().get(0).getCount()).isEqualTo(2);
 		}else if(resultReply.getFinalResult().get(0).getCandidate().getCandidateId().equals("cnd2")){
@@ -104,7 +104,7 @@ class VotingServiceApplicationTests {
 
 	@Test
 	void testGetResultInvalidNonExistingEventIdBadRequest() throws URISyntaxException {
-		assertThatThrownBy(()->restTemplate.getForObject(new URI("http://localhost:"+port+"/voting/event/e7/result"), VotingResult.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		assertThatThrownBy(()->restTemplate.getForObject(new URI("http://localhost:"+port+"/service/voting/events/e7/result"), VotingResult.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	private int createCreator(Connection connection, String creatorId, String creatorName, String creatorInfo) throws SQLException {

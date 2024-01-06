@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/voting")
+@RequestMapping("/service/voting")
 public class VotingServiceResource {
     private final VotingServiceHelper helper;
 
@@ -26,7 +26,7 @@ public class VotingServiceResource {
         this.helper=helper;
     }
 
-    @GetMapping("/event/{eventId}")
+    @GetMapping("/events/{eventId}")
     public ResponseEntity getEvent(@PathVariable("eventId") String eventId){
         EventWithNomination eventWithNomination = helper.getEvent(eventId);
         if(eventWithNomination!=null){
@@ -36,7 +36,7 @@ public class VotingServiceResource {
         }
     }
 
-    @GetMapping("/event/{eventId}/result")
+    @GetMapping("/events/{eventId}/result")
     public ResponseEntity getResult(@PathVariable("eventId") String eventId){
         VotingResult result=helper.getResult(eventId);
         if(result!=null){

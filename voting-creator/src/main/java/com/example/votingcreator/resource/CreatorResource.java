@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/creator")
+@RequestMapping("/service/creators")
 public class CreatorResource {
 
     private final CreatorHelper helper;
@@ -35,7 +35,7 @@ public class CreatorResource {
         }
     }
 
-    @PostMapping("/{creatorId}/event")
+    @PostMapping("/{creatorId}/events")
     public ResponseEntity createEvent(@PathVariable("creatorId") String creatorId, @RequestBody Event event){
         Event eventReply=helper.createEvent(creatorId, event);
         if(eventReply!=null){
@@ -44,7 +44,7 @@ public class CreatorResource {
         return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/{creatorId}/event/{eventId}")
+    @GetMapping("/{creatorId}/events/{eventId}")
     public ResponseEntity getEvent(@PathVariable("creatorId") String creatorId, @PathVariable("eventId") String eventId){
         Event event=helper.getEvent(creatorId, eventId);
         if(event!=null){
@@ -53,7 +53,7 @@ public class CreatorResource {
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
     }
-    @PostMapping("/{creatorId}/event/{eventId}/nomination")
+    @PostMapping("/{creatorId}/events/{eventId}/nominations")
     public ResponseEntity createNomination(@PathVariable("creatorId") String creatorId,
                                            @PathVariable("eventId") String eventId,
                                            @RequestBody Nomination nomination){
@@ -64,7 +64,7 @@ public class CreatorResource {
             return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/{creatorId}/event/{eventId}/nomination")
+    @GetMapping("/{creatorId}/events/{eventId}/nominations")
     public ResponseEntity getNomination(@PathVariable("creatorId") String creatorId,
                                            @PathVariable("eventId") String eventId){
         EventWithNomination eventWithNomination=helper.getNomination(creatorId, eventId);

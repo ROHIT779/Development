@@ -39,7 +39,7 @@ class VotingCreatorApplicationTests {
 	@AfterEach
 	void tearDown() throws URISyntaxException {
 		try{
-			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/voting/delete-all/"));
+			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/service/voting/delete-all/"));
 		}catch(ResourceAccessException e){
 			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+votingServicePort);
 		}
@@ -50,11 +50,11 @@ class VotingCreatorApplicationTests {
 		Creator creator = new Creator();
 		creator.setCreatorName("creator 1");
 		creator.setCreatorInfo("The first creator");
-		Creator creatorReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator, Creator.class);
+		Creator creatorReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator, Creator.class);
 		assertThat(creatorReply.getCreatorName()).isEqualTo("creator 1");
 		assertThat(creatorReply.getCreatorInfo()).isEqualTo("The first creator");
 
-		Creator creatorGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()), Creator.class);
+		Creator creatorGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/creators/"+creatorReply.getCreatorId()), Creator.class);
 		assertThat(creatorGetReply.getCreatorName()).isEqualTo(creatorReply.getCreatorName());
 		assertThat(creatorGetReply.getCreatorInfo()).isEqualTo(creatorReply.getCreatorInfo());
 		assertThat(creatorGetReply.getCreatorId()).isEqualTo(creatorReply.getCreatorId());
@@ -62,11 +62,11 @@ class VotingCreatorApplicationTests {
 		Event event = new Event();
 		event.setEventName("event 1");
 		event.setEventInfo("first event");
-		Event eventReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event"), event, Event.class);
+		Event eventReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creatorReply.getCreatorId()+"/events"), event, Event.class);
 		assertThat(eventReply.getEventName()).isEqualTo("event 1");
 		assertThat(eventReply.getEventInfo()).isEqualTo("first event");
 
-		Event eventGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event/"+eventReply.getEventId()), Event.class);
+		Event eventGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/creators/"+creatorReply.getCreatorId()+"/events/"+eventReply.getEventId()), Event.class);
 		assertThat(eventGetReply.getEventName()).isEqualTo(eventReply.getEventName());
 		assertThat(eventGetReply.getEventInfo()).isEqualTo(eventReply.getEventInfo());
 		assertThat(eventGetReply.getEventId()).isEqualTo(eventReply.getEventId());
@@ -83,7 +83,7 @@ class VotingCreatorApplicationTests {
 		Nomination nomination = new Nomination();
 		nomination.setCandidateList(candidateList);
 
-		Nomination nominationReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event/"+eventReply.getEventId()+"/nomination"), nomination, Nomination.class);
+		Nomination nominationReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creatorReply.getCreatorId()+"/events/"+eventReply.getEventId()+"/nominations"), nomination, Nomination.class);
 		assertThat(nominationReply.getCandidateList().size()).isEqualTo(2);
 		assertThat(nominationReply.getEventId()).isEqualTo(eventReply.getEventId());
 		assertThat(nominationReply.getCandidateList().get(0).getCandidateName()).isEqualTo(candidate1.getCandidateName());
@@ -91,7 +91,7 @@ class VotingCreatorApplicationTests {
 		assertThat(nominationReply.getCandidateList().get(1).getCandidateName()).isEqualTo(candidate2.getCandidateName());
 		assertThat(nominationReply.getCandidateList().get(1).getCandidateInfo()).isEqualTo(candidate2.getCandidateInfo());
 
-		Nomination nominationGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creatorReply.getCreatorId()+"/event/"+eventReply.getEventId()+"/nomination"), Nomination.class);
+		Nomination nominationGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/creators/"+creatorReply.getCreatorId()+"/events/"+eventReply.getEventId()+"/nominations"), Nomination.class);
 		assertThat(nominationGetReply.getCandidateList().size()).isEqualTo(2);
 		assertThat(nominationGetReply.getEventId()).isEqualTo(eventReply.getEventId());
 		assertThat(nominationGetReply.getCandidateList().get(0).getCandidateName()).isEqualTo(candidate1.getCandidateName());
@@ -105,11 +105,11 @@ class VotingCreatorApplicationTests {
 		Creator creator = new Creator();
 		creator.setCreatorName("creator 1");
 		creator.setCreatorInfo("The first creator");
-		Creator creatorReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator, Creator.class);
+		Creator creatorReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator, Creator.class);
 		assertThat(creatorReply.getCreatorName()).isEqualTo("creator 1");
 		assertThat(creatorReply.getCreatorInfo()).isEqualTo("The first creator");
 
-		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/1234"), Creator.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/creators/1234"), Creator.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	@Test
@@ -117,24 +117,24 @@ class VotingCreatorApplicationTests {
 		Creator creator1 = new Creator();
 		creator1.setCreatorName("creator 1");
 		creator1.setCreatorInfo("The first creator");
-		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator1, Creator.class);
+		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator1, Creator.class);
 
 		Event event1 = new Event();
 		event1.setEventName("event 1");
 		event1.setEventInfo("first event");
-		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event"), event1, Event.class);
+		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events"), event1, Event.class);
 
 		Creator creator2 = new Creator();
 		creator2.setCreatorName("creator 1");
 		creator2.setCreatorInfo("The first creator");
-		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator2, Creator.class);
+		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator2, Creator.class);
 
 		Event event2 = new Event();
 		event2.setEventName("event 1");
 		event2.setEventInfo("first event");
-		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator2Reply.getCreatorId()+"/event"), event1, Event.class);
+		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator2Reply.getCreatorId()+"/events"), event1, Event.class);
 
-		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event2Reply.getEventId()), Event.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events/"+event2Reply.getEventId()), Event.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	@Test
@@ -142,22 +142,22 @@ class VotingCreatorApplicationTests {
 		Creator creator1 = new Creator();
 		creator1.setCreatorName("creator 1");
 		creator1.setCreatorInfo("The first creator");
-		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator1, Creator.class);
+		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator1, Creator.class);
 
 		Event event1 = new Event();
 		event1.setEventName("event 1");
 		event1.setEventInfo("first event");
-		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event"), event1, Event.class);
+		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events"), event1, Event.class);
 
 		Creator creator2 = new Creator();
 		creator2.setCreatorName("creator 1");
 		creator2.setCreatorInfo("The first creator");
-		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator2, Creator.class);
+		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator2, Creator.class);
 
 		Event event2 = new Event();
 		event2.setEventName("event 1");
 		event2.setEventInfo("first event");
-		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator2Reply.getCreatorId()+"/event"), event1, Event.class);
+		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator2Reply.getCreatorId()+"/events"), event1, Event.class);
 
 		List<Candidate> candidateList=new ArrayList<>();
 		Candidate candidate1=new Candidate();
@@ -171,7 +171,7 @@ class VotingCreatorApplicationTests {
 		candidateList.add(candidate2);
 		Nomination nomination=new Nomination();
 		nomination.setCandidateList(candidateList);
-		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event2Reply.getEventId()+"/nomination"), nomination, Nomination.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events/"+event2Reply.getEventId()+"/nominations"), nomination, Nomination.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	@Test
@@ -179,22 +179,22 @@ class VotingCreatorApplicationTests {
 		Creator creator1 = new Creator();
 		creator1.setCreatorName("creator 1");
 		creator1.setCreatorInfo("The first creator");
-		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator1, Creator.class);
+		Creator creator1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator1, Creator.class);
 
 		Event event1 = new Event();
 		event1.setEventName("event 1");
 		event1.setEventInfo("first event");
-		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event"), event1, Event.class);
+		Event event1Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events"), event1, Event.class);
 
 		Creator creator2 = new Creator();
 		creator2.setCreatorName("creator 1");
 		creator2.setCreatorInfo("The first creator");
-		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"), creator2, Creator.class);
+		Creator creator2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"), creator2, Creator.class);
 
 		Event event2 = new Event();
 		event2.setEventName("event 1");
 		event2.setEventInfo("first event");
-		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator2Reply.getCreatorId()+"/event"), event1, Event.class);
+		Event event2Reply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator2Reply.getCreatorId()+"/events"), event1, Event.class);
 
 		List<Candidate> candidateList=new ArrayList<>();
 		Candidate candidate1=new Candidate();
@@ -208,9 +208,9 @@ class VotingCreatorApplicationTests {
 		candidateList.add(candidate2);
 		Nomination nomination=new Nomination();
 		nomination.setCandidateList(candidateList);
-		Nomination nominationReply=this.restTemplate.postForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event1Reply.getEventId()+"/nomination"), nomination, Nomination.class);
+		Nomination nominationReply=this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events/"+event1Reply.getEventId()+"/nominations"), nomination, Nomination.class);
 		assertThat(nominationReply).isNotNull();
 
-		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/creator/"+creator1Reply.getCreatorId()+"/event/"+event2Reply.getEventId()+"/nomination"), Nomination.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		assertThatThrownBy(()->this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/creators/"+creator1Reply.getCreatorId()+"/events/"+event2Reply.getEventId()+"/nominations"), Nomination.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 }

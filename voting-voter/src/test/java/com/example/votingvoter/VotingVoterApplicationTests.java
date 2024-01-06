@@ -74,7 +74,7 @@ class VotingVoterApplicationTests {
 	@AfterEach
 	void tearDown() throws URISyntaxException {
 		try{
-			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/voting/delete-all/"));
+			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/service/voting/delete-all/"));
 		}catch(ResourceAccessException e){
 			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+votingServicePort);
 		}
@@ -83,11 +83,11 @@ class VotingVoterApplicationTests {
 	void testVoterSuccessfulWorkflow() throws URISyntaxException {
 		Voter voter = new Voter();
 		voter.setVoterName("voter 1");
-		Voter voterReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"), voter, Voter.class);
+		Voter voterReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"), voter, Voter.class);
 		assertThat(voterReply.getVoterName()).isEqualTo("voter 1");
 		assertThat(voterReply.getEventId()).isEqualTo("e1");
 
-		Voter voterGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/event/e1/voter/"+voterReply.getVoterId()), Voter.class);
+		Voter voterGetReply= this.restTemplate.getForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"+voterReply.getVoterId()), Voter.class);
 		assertThat(voterGetReply.getVoterId()).isEqualTo(voterReply.getVoterId());
 		assertThat(voterGetReply.getVoterName()).isEqualTo(voterReply.getVoterName());
 		assertThat(voterGetReply.getEventId()).isEqualTo(voterReply.getEventId());
@@ -95,7 +95,7 @@ class VotingVoterApplicationTests {
 
 		Vote vote=new Vote();
 		vote.setCandidateId("cnd2");
-		Voter voterVoteReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"+voterReply.getVoterId()+"/vote"), vote, Voter.class);
+		Voter voterVoteReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"+voterReply.getVoterId()+"/vote"), vote, Voter.class);
 		assertThat(voterVoteReply).isNotNull();
 		assertThat(voterVoteReply.getVote().getCandidateId()).isEqualTo("cnd2");
 	}
@@ -104,23 +104,23 @@ class VotingVoterApplicationTests {
 	void testVoterValidEventIdInvalidExistingCandidateIdBadRequest() throws URISyntaxException {
 		Voter voter = new Voter();
 		voter.setVoterName("voter 1");
-		Voter voterReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"), voter, Voter.class);
+		Voter voterReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"), voter, Voter.class);
 
 		Vote vote=new Vote();
 		vote.setCandidateId("cnd3");
-		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"+voterReply.getVoterId()+"/vote"), vote, Voter.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"+voterReply.getVoterId()+"/vote"), vote, Voter.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	@Test
 	void testVoterCastingVoteMoreThanOnceBadRequest() throws URISyntaxException {
 		Voter voter = new Voter();
 		voter.setVoterName("voter 1");
-		Voter voterReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"), voter, Voter.class);
+		Voter voterReply= this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"), voter, Voter.class);
 
 		Vote vote=new Vote();
 		vote.setCandidateId("cnd1");
-		this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"+voterReply.getVoterId()+"/vote"), vote, Voter.class);
-		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/event/e1/voter/"+voterReply.getVoterId()+"/vote"), vote, Voter.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
+		this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"+voterReply.getVoterId()+"/vote"), vote, Voter.class);
+		assertThatThrownBy(()->this.restTemplate.postForObject(new URI("http://localhost:"+port+"/service/events/e1/voters/"+voterReply.getVoterId()+"/vote"), vote, Voter.class)).isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	private int createCreator(Connection connection, String creatorId, String creatorName, String creatorInfo) throws SQLException {
