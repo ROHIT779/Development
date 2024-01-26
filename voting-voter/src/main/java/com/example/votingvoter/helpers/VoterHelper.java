@@ -18,6 +18,9 @@ import java.sql.SQLException;
 @Component
 public class VoterHelper {
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     private JDBCManager jdbcManager;
 
     @Autowired
@@ -54,10 +57,9 @@ public class VoterHelper {
 
     public EventWithNomination getEventDetails(String eventId){
         EventWithNomination eventWithNomination = null;
-        RestTemplate restTemplate = new RestTemplate();
         if(jdbcManager.validateId(eventId,null,null)){
             String creatorId = jdbcManager.getCreatorFromEvent(eventId);
-            eventWithNomination = restTemplate.getForObject("http://localhost:8081/creator/"+creatorId+"/event/"+eventId+"/nomination", EventWithNomination.class);
+            eventWithNomination = restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
         }
         return eventWithNomination;
     }
