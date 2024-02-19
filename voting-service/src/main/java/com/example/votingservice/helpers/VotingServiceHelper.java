@@ -9,12 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class VotingServiceHelper {
 
+//    @Autowired
+//    private RestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
+    private WebClient.Builder webClientBuilder;
     private JDBCManager jdbcManager;
 
     @Autowired
@@ -25,7 +29,13 @@ public class VotingServiceHelper {
     public EventWithNomination getEvent(String eventId){
         if(jdbcManager.validateId("event_id",eventId)){
             String creatorId = jdbcManager.getCreatorFromEvent(eventId);
-            EventWithNomination eventWithNomination = restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
+            //EventWithNomination eventWithNomination = restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
+            EventWithNomination eventWithNomination = webClientBuilder.build()
+                    .get()
+                    .uri("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations")
+                    .retrieve()
+                    .bodyToMono(EventWithNomination.class)
+                    .block();
             return eventWithNomination;
         }else{
             return null;

@@ -1,6 +1,7 @@
 package com.example.votingservice;
 
 import com.example.votingservice.jdbc.JDBCProperties;
+import com.example.votingservice.jdbc.TestJDBCManager;
 import com.example.votingservice.model.Candidate;
 import com.example.votingservice.model.VotingResult;
 import org.junit.jupiter.api.AfterEach;
@@ -30,6 +31,9 @@ class VotingServiceApplicationTests {
 	private String port= "8083";
 
 	private RestTemplate restTemplate = new RestTemplate();
+
+	@Autowired
+	TestJDBCManager jdbcManager;
 
 	@Autowired
 	JDBCProperties jdbcProperties;
@@ -84,11 +88,11 @@ class VotingServiceApplicationTests {
 	}
 
 	@AfterEach
-	void tearDown() throws URISyntaxException {
+	void tearDown() {
 		try{
-			restTemplate.delete(new URI("http://localhost:"+port+"/service/voting/delete-all/"));
-		}catch(ResourceAccessException e){
-			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+port);
+			jdbcManager.deleteAllData();
+		}catch(SQLException e){
+			Logger.getAnonymousLogger().log(Level.WARNING, "Following exception is thrown when deleting data from tables: "+e);
 		}
 	}
 

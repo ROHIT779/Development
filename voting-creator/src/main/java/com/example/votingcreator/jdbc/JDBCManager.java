@@ -35,6 +35,7 @@ public class JDBCManager {
         int rowsAffected = 0;
 
         Connection connection = null;
+        PreparedStatement statement = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -47,17 +48,25 @@ public class JDBCManager {
             // mydbuser is password of database
 
             String sql = "insert into creator values (?,?,?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(sql);
             statement.setString(1, creatorId);
             statement.setString(2, creatorName);
             statement.setString(3, creatorInfo);
             rowsAffected = statement.executeUpdate();
 
-            statement.close();
-            connection.close();
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             System.out.println(exception);
+        }finally{
+            try{
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         System.out.println(rowsAffected + " rows affected.");
     }
@@ -69,6 +78,8 @@ public class JDBCManager {
         String creatorInfo="";
         Creator creator=null;
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -80,10 +91,8 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             statement = connection.prepareStatement("select * from creator where creator_id=?");
             statement.setString(1, creatorId);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 creatorId = resultSet.getString("creator_id").trim();
@@ -107,12 +116,23 @@ public class JDBCManager {
                 EventWithNomination eventWithNomination=getNominations(eventId);
                 creator.addEventWithNomination(eventWithNomination);
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(exception);
+        }finally{
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         return creator;
     }
@@ -126,6 +146,7 @@ public class JDBCManager {
         int rowsAffected = 0;
 
         Connection connection = null;
+        PreparedStatement statement = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -138,18 +159,26 @@ public class JDBCManager {
             // mydbuser is password of database
 
             String sql = "insert into event values (?,?,?,?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(sql);
             statement.setString(1, eventId);
             statement.setString(2, eventName);
             statement.setString(3, eventInfo);
             statement.setString(4, creatorId);
             rowsAffected = statement.executeUpdate();
-
-            statement.close();
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(exception);
+        }finally{
+            try{
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         System.out.println(rowsAffected + " rows affected.");
     }
@@ -158,6 +187,8 @@ public class JDBCManager {
         String eventName="";
         String eventInfo="";
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -169,29 +200,36 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             statement = connection.prepareStatement("select * from event where event_id=? and creator_id=?");
             statement.setString(1, eventId);
             statement.setString(2, creatorId);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 eventId = resultSet.getString("event_id").trim();
                 eventName = resultSet.getString("event_name").trim();
                 eventInfo = resultSet.getString("event_info").trim();
                 creatorId = resultSet.getString("creator_id").trim();
-
-
                 System.out.println("eventId : " + eventId
                         + " eventName : " + eventName + " eventInfo" + eventInfo
                 + " creatorId: " + creatorId);
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(exception);
+        }finally{
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         return new Event(eventId, eventName, eventInfo, creatorId);
     }
@@ -199,6 +237,7 @@ public class JDBCManager {
     public void addNomination(String creatorId, Nomination nomination){
         int rowsAffected = 0;
         Connection connection = null;
+        PreparedStatement statement = null;
         if(addCandidates(nomination.getCandidateList())){
             try {
                 // below two lines are used for connectivity.
@@ -208,17 +247,26 @@ public class JDBCManager {
                         jdbcProperties.getUserName(), jdbcProperties.getPassword());
                 for(Candidate candidate : nomination.getCandidateList()){
                     String sql = "insert into nomination values (?,?)";
-                    PreparedStatement statement = connection.prepareStatement(sql);
+                    statement = connection.prepareStatement(sql);
                     statement.setString(1, candidate.getCandidateId());
                     statement.setString(2, nomination.getEventId());
                     statement.executeUpdate();
-                    statement.close();
                     rowsAffected++;
                 }
-                connection.close();
             }
             catch (Exception exception) {
                 System.out.println(exception);
+            }finally{
+                try{
+                    if(statement != null){
+                        statement.close();
+                    }
+                    if(connection != null){
+                        connection.close();
+                    }
+                }catch(SQLException exception){
+                    System.out.println(exception);
+                }
             }
             System.out.println(rowsAffected + " rows affected for nomination.");
         }
@@ -228,6 +276,7 @@ public class JDBCManager {
         int rowsAffected = 0;
 
         Connection connection = null;
+        PreparedStatement statement = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -237,18 +286,27 @@ public class JDBCManager {
 
             for(Candidate candidate : candidateList){
                 String sql = "insert into candidate values (?,?,?)";
-                PreparedStatement statement = connection.prepareStatement(sql);
+                statement = connection.prepareStatement(sql);
                 statement.setString(1, candidate.getCandidateId());
                 statement.setString(2, candidate.getCandidateName());
                 statement.setString(3, candidate.getCandidateInfo());
                 statement.executeUpdate();
-                statement.close();
                 rowsAffected++;
             }
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(exception);
+        }finally{
+            try{
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         System.out.println(rowsAffected + " rows affected for candidate");
         return candidateList.size() == rowsAffected ? true : false;
@@ -260,6 +318,8 @@ public class JDBCManager {
         List<Candidate> candidateList = new ArrayList<>();
 
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -271,10 +331,8 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             statement = connection.prepareStatement("select * from event left join nomination using (event_id) left join candidate using (candidate_id) where event_id=?");
             statement.setString(1, eventId);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             boolean isFirstRow=true;
             while (resultSet.next()) {
@@ -289,12 +347,23 @@ public class JDBCManager {
                     isFirstRow = false;
                 }
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(Arrays.toString(exception.getStackTrace()));
+        }finally{
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         return new EventWithNomination(event.getEventId(), event.getEventName(), event.getEventInfo(),event.getCreatorId(),
                 candidateList);
@@ -305,6 +374,8 @@ public class JDBCManager {
         System.out.println("validating creatorId: "+ creatorId);
         System.out.println("validating eventId: "+ eventId);
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -319,30 +390,39 @@ public class JDBCManager {
             if(creatorId != null && eventId == null){
                 String validateCreatorQuery = "select count(*) from creator where creator_id=\'"+creatorId+"\'";
                 System.out.println(validateCreatorQuery);
-                PreparedStatement statement = connection.prepareStatement(validateCreatorQuery);
-                ResultSet resultSet= statement.executeQuery();
+                statement = connection.prepareStatement(validateCreatorQuery);
+                resultSet= statement.executeQuery();
                 while(resultSet.next()){
                     count = resultSet.getInt(1);
                 }
                 System.out.println("Count: "+count);
-                resultSet.close();
-                statement.close();
             }else if(creatorId != null && eventId != null){
                 String validateCreatorWithEventQuery = "select count(*) from event where creator_id=\'"+creatorId+"\' and event_id=\'"+eventId+"\'";
                 System.out.println(validateCreatorWithEventQuery);
-                PreparedStatement statement = connection.prepareStatement(validateCreatorWithEventQuery);
-                ResultSet resultSet= statement.executeQuery();
+                statement = connection.prepareStatement(validateCreatorWithEventQuery);
+                resultSet= statement.executeQuery();
                 while(resultSet.next()){
                     count = resultSet.getInt(1);
                 }
                 System.out.println("Count: "+count);
-                resultSet.close();
-                statement.close();
             }
-            connection.close();
         }
         catch (SQLException exception) {
             System.out.println(exception.getStackTrace());
+        }finally{
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         if(count>0){
             return true;
