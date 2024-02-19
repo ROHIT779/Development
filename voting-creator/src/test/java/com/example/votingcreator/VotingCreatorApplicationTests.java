@@ -1,26 +1,21 @@
 package com.example.votingcreator;
 
+import com.example.votingcreator.jdbc.TestJDBCManager;
 import com.example.votingcreator.model.Candidate;
 import com.example.votingcreator.model.Creator;
 import com.example.votingcreator.model.Event;
 import com.example.votingcreator.model.Nomination;
-import com.example.votingcreator.resource.CreatorResource;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,17 +26,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 class VotingCreatorApplicationTests {
 
-	private String votingServicePort="8083";
+	@Autowired
+	private TestJDBCManager jdbcManager;
 	private String port= "8081";
 
 	private RestTemplate restTemplate = new RestTemplate();
 
 	@AfterEach
-	void tearDown() throws URISyntaxException {
+	void tearDown() {
 		try{
-			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/service/voting/delete-all/"));
-		}catch(ResourceAccessException e){
-			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+votingServicePort);
+			jdbcManager.deleteAllData();
+		}catch(SQLException e){
+			Logger.getAnonymousLogger().log(Level.WARNING, "Following exception is thrown when deleting data from tables: "+e);
 		}
 	}
 

@@ -2,6 +2,7 @@ package com.example.votingvoter;
 
 import com.example.votingvoter.jdbc.JDBCManager;
 import com.example.votingvoter.jdbc.JDBCProperties;
+import com.example.votingvoter.jdbc.TestJDBCManager;
 import com.example.votingvoter.model.Candidate;
 import com.example.votingvoter.model.Vote;
 import com.example.votingvoter.model.Voter;
@@ -32,10 +33,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 class VotingVoterApplicationTests {
 
-	private String votingServicePort="8083";
 	private String port= "8082";
 
 	private RestTemplate restTemplate = new RestTemplate();
+	@Autowired
+	private TestJDBCManager jdbcManager;
 
 	@Autowired
 	JDBCProperties jdbcProperties;
@@ -74,9 +76,9 @@ class VotingVoterApplicationTests {
 	@AfterEach
 	void tearDown() throws URISyntaxException {
 		try{
-			restTemplate.delete(new URI("http://localhost:"+votingServicePort+"/service/voting/delete-all/"));
-		}catch(ResourceAccessException e){
-			Logger.getAnonymousLogger().log(Level.WARNING, "Unable to delete test-data as voting-service refused to connect at Port: "+votingServicePort);
+			jdbcManager.deleteAllData();
+		}catch(SQLException e){
+			Logger.getAnonymousLogger().log(Level.WARNING, "Following exception is thrown when deleting data from tables: "+e);
 		}
 	}
 	@Test
