@@ -12,14 +12,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilderFactory;
 
 import java.sql.SQLException;
 
 @Component
 public class VoterHelper {
 
+//    @Autowired
+//    private RestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
+    private WebClient.Builder webClientBuilder;
 
     private JDBCManager jdbcManager;
 
@@ -59,7 +64,13 @@ public class VoterHelper {
         EventWithNomination eventWithNomination = null;
         if(jdbcManager.validateId(eventId,null,null)){
             String creatorId = jdbcManager.getCreatorFromEvent(eventId);
-            eventWithNomination = restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
+            //eventWithNomination = restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
+            eventWithNomination = webClientBuilder.build()
+                    .get()
+                    .uri("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations")
+                    .retrieve()
+                    .bodyToMono(EventWithNomination.class)
+                    .block();
         }
         return eventWithNomination;
     }
