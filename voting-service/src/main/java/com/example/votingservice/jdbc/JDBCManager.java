@@ -31,6 +31,8 @@ public class JDBCManager {
         List<Candidate> candidateList = new ArrayList<>();
 
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -42,10 +44,8 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             statement = connection.prepareStatement("select * from event left join nomination using (event_id) left join candidate using (candidate_id) where event_id=?");
             statement.setString(1, eventId);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             boolean isFirstRow=true;
             while (resultSet.next()) {
@@ -60,12 +60,23 @@ public class JDBCManager {
                     isFirstRow = false;
                 }
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(Arrays.toString(exception.getStackTrace()));
+        }finally{
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         return new EventWithNomination(event.getEventId(), event.getEventName(), event.getEventInfo(),event.getCreatorId(),
                 candidateList);
@@ -75,6 +86,8 @@ public class JDBCManager {
         VotingResult votingResult = new VotingResult();
         List<CandidateResult> candidateResults = new ArrayList<>();
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -86,10 +99,8 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             statement = connection.prepareStatement("select * from result left join candidate using (candidate_id) where event_id=?");
             statement.setString(1, eventId);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 System.out.println(resultSet.getString("candidate_id"));
@@ -99,14 +110,25 @@ public class JDBCManager {
                 Candidate candidate = new Candidate(resultSet.getString("candidate_id"), resultSet.getString("candidate_name"), resultSet.getString("candidate_info"));
                 candidateResults.add(new CandidateResult(resultSet.getInt("count"), candidate));
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
             votingResult.setEventId(eventId);
             votingResult.setFinalResult(candidateResults);
         }
         catch (Exception exception) {
             System.out.println(Arrays.toString(exception.getStackTrace()));
+        }finally{
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         return votingResult;
     }
@@ -118,6 +140,8 @@ public class JDBCManager {
         String tableName = idType.substring(0, idType.length()-3);
         System.out.println("Table name is: "+tableName);
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -129,22 +153,31 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             String validateQuery = "select count(*) from "+tableName+" where "+idType+"="+"\'"+value+"\'";
             System.out.println(validateQuery);
             statement = connection.prepareStatement(validateQuery);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 count = resultSet.getInt(1);
             }
             System.out.println("Count: "+count);
-            resultSet.close();
-            statement.close();
-            connection.close();
         }
         catch (SQLException exception) {
             System.out.println(Arrays.toString(exception.getStackTrace()));
+        }finally {
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         if(count>0){
             return true;
@@ -155,6 +188,8 @@ public class JDBCManager {
 
     public String getCreatorFromEvent(String eventId){
         Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         String creatorId="";
         try {
             // below two lines are used for connectivity.
@@ -167,21 +202,30 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            PreparedStatement statement;
             statement = connection.prepareStatement("select creator_id from event where event_id=?");
             statement.setString(1, eventId);
-            ResultSet resultSet;
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 creatorId = resultSet.getString("creator_id").trim();
                 System.out.println("creatorId : " + creatorId+" from eventId: "+eventId);
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
         }
         catch (Exception exception) {
             System.out.println(exception);
+        }finally {
+            try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         return creatorId;
     }
@@ -190,22 +234,32 @@ public class JDBCManager {
         String[] tables = {"result","voter","nomination","candidate","event","creator"};
         String output = "";
         Connection connection = null;
+        PreparedStatement statement = null;
         try{
             connection = DriverManager.getConnection(
                     jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
                     jdbcProperties.getUserName(), jdbcProperties.getPassword());
             for(String table : tables){
-                PreparedStatement statement;
                 String deleteQuery = "delete from "+table;
                 System.out.println(deleteQuery);
                 statement = connection.prepareStatement(deleteQuery);
                 int rowsAffected=0;
                 rowsAffected = statement.executeUpdate();
                 output += rowsAffected + " rows affected in table: "+table+"\n";
-                statement.close();
             }
         } catch (SQLException exception) {
             throw new RuntimeException(exception);
+        }finally {
+            try{
+                if(statement != null){
+                    statement.close();
+                }
+                if(connection != null){
+                    connection.close();
+                }
+            }catch(SQLException exception){
+                System.out.println(exception);
+            }
         }
         System.out.println(output);
         return output;
