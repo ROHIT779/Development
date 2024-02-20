@@ -1,6 +1,5 @@
 package com.example.votingcreator.resource;
 
-import com.example.votingcreator.generator.IDGenerator;
 import com.example.votingcreator.helpers.CreatorHelper;
 import com.example.votingcreator.jdbc.JDBCManager;
 import com.example.votingcreator.model.*;

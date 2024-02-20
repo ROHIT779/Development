@@ -1,6 +1,5 @@
 package com.example.votingcreator.helpers;
 
-import com.example.votingcreator.generator.IDGenerator;
 import com.example.votingcreator.jdbc.JDBCManager;
 import com.example.votingcreator.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+
+import java.util.Iterator;
+import java.util.List;
 
 @Component
 public class CreatorHelper {
@@ -19,9 +21,9 @@ public class CreatorHelper {
         this.jdbcManager=jdbcManager;
     }
 
-    public void createCreator(Creator creator){
-        creator.setCreatorId(String.valueOf(IDGenerator.getRandomId()));
-        jdbcManager.addCreator(creator);
+    public Creator createCreator(Creator creator){
+        creator.setCreatorId(jdbcManager.addCreator(creator));
+        return creator;
     }
     public Creator getCreator(String creatorId){
         if(jdbcManager.validateId(creatorId,null)){
@@ -32,9 +34,8 @@ public class CreatorHelper {
 
     public Event createEvent(String creatorId, Event event){
         event.setCreatorId(creatorId);
-        event.setEventId(String.valueOf(IDGenerator.getRandomId()));
         if(jdbcManager.validateId(creatorId, null)){
-            jdbcManager.addEvent(event);
+            event.setEventId(jdbcManager.addEvent(event));
             return event;
         }
         return null;
@@ -49,11 +50,13 @@ public class CreatorHelper {
         System.out.println(creatorId);
         System.out.println(eventId);
         nomination.setEventId(eventId);
-        for(Candidate candidate:nomination.getCandidateList()){
-            candidate.setCandidateId(IDGenerator.getRandomId());
-        }
         if(jdbcManager.validateId(creatorId, eventId)){
-            jdbcManager.addNomination(creatorId, nomination);
+            Iterator<String> candidateIdsIterator = jdbcManager.addNomination(creatorId, nomination).iterator();
+            for(Candidate candidate : nomination.getCandidateList()){
+                if(candidateIdsIterator.hasNext()){
+                    candidate.setCandidateId(candidateIdsIterator.next());
+                }
+            }
             return nomination;
         }else{
             return null;
