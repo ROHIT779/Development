@@ -27,13 +27,14 @@ public class JDBCManager {
     }
 
 
-    public void addVoter(Voter voter) {
-        String voterId = voter.getVoterId();
+    public String addVoter(Voter voter) {
+        String voterId = "";
         String voterName = voter.getVoterName();
         int rowsAffected = 0;
 
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -45,18 +46,23 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            String sql = "insert into voter values (?,?,?,?)";
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, voterId);
-            statement.setString(2, voterName);
-            statement.setString(3, voter.getEventId());
-            statement.setBoolean(4, false);
-
+            String sql = "insert into voter (voter_name, event_id, voted) values (?,?,?)";
+            statement = connection.prepareStatement(sql, new String[]{"voter_id"});
+            statement.setString(1, voterName);
+            statement.setString(2, voter.getEventId());
+            statement.setBoolean(3, false);
             rowsAffected = statement.executeUpdate();
+            resultSet = statement.getGeneratedKeys();
+            if(resultSet.next()){
+                voterId = String.valueOf(resultSet.getLong(1));
+            }
         } catch (Exception exception) {
             System.out.println(Arrays.toString(exception.getStackTrace()));
         }finally{
             try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
                 if(statement != null){
                     statement.close();
                 }
@@ -68,6 +74,7 @@ public class JDBCManager {
             }
         }
         System.out.println(rowsAffected + " rows affected addVoter.");
+        return voterId;
     }
 
     public Voter getVoter(String voterId){

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,14 +29,15 @@ public class JDBCManager {
         System.out.println("JDBC URL: "+this.jdbcProperties.getPassword());
     }
 
-    public void addCreator(Creator creator){
-        String creatorId = creator.getCreatorId();
+    public String addCreator(Creator creator){
+        String creatorId = "";
         String creatorName = creator.getCreatorName();
         String creatorInfo = creator.getCreatorInfo();
         int rowsAffected = 0;
 
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet resultSet = null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -47,17 +49,22 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            String sql = "insert into creator values (?,?,?)";
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, creatorId);
-            statement.setString(2, creatorName);
-            statement.setString(3, creatorInfo);
+            String sql = "insert into creator (creator_name, creator_info) values (?,?)";
+            statement = connection.prepareStatement(sql, new String[]{"creator_id"});
+            statement.setString(1, creatorName);
+            statement.setString(2, creatorInfo);
             rowsAffected = statement.executeUpdate();
-
+            resultSet = statement.getGeneratedKeys();
+            if(resultSet.next()){
+                creatorId = String.valueOf(resultSet.getLong(1));
+            }
         } catch (Exception exception) {
             System.out.println(exception);
         }finally{
             try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
                 if(statement != null){
                     statement.close();
                 }
@@ -68,12 +75,11 @@ public class JDBCManager {
                 System.out.println(exception);
             }
         }
-        System.out.println(rowsAffected + " rows affected.");
+        System.out.println(rowsAffected+" rows affected");
+        return creatorId;
     }
 
     public Creator getCreator(String creatorId){
-
-
         String creatorName="";
         String creatorInfo="";
         Creator creator=null;
@@ -137,7 +143,7 @@ public class JDBCManager {
         return creator;
     }
 
-    public void addEvent(Event event){
+    public String addEvent(Event event){
 
         String eventId = event.getEventId();
         String eventName = event.getEventName();
@@ -147,6 +153,7 @@ public class JDBCManager {
 
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet resultSet=  null;
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -158,18 +165,24 @@ public class JDBCManager {
             // mydbuser is name of database
             // mydbuser is password of database
 
-            String sql = "insert into event values (?,?,?,?)";
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, eventId);
-            statement.setString(2, eventName);
-            statement.setString(3, eventInfo);
-            statement.setString(4, creatorId);
+            String sql = "insert into event (event_name, event_info, creator_id) values (?,?,?)";
+            statement = connection.prepareStatement(sql, new String[]{"event_id"});
+            statement.setString(1, eventName);
+            statement.setString(2, eventInfo);
+            statement.setString(3, creatorId);
             rowsAffected = statement.executeUpdate();
+            resultSet = statement.getGeneratedKeys();
+            if(resultSet.next()){
+                eventId = String.valueOf(resultSet.getLong(1));
+            }
         }
         catch (Exception exception) {
             System.out.println(exception);
         }finally{
             try{
+                if(resultSet != null){
+                    resultSet.close();
+                }
                 if(statement != null){
                     statement.close();
                 }
@@ -180,7 +193,8 @@ public class JDBCManager {
                 System.out.println(exception);
             }
         }
-        System.out.println(rowsAffected + " rows affected.");
+        System.out.println(rowsAffected+" rows affected");
+        return eventId;
     }
 
     public Event getEvent(String creatorId, String eventId){
@@ -234,21 +248,21 @@ public class JDBCManager {
         return new Event(eventId, eventName, eventInfo, creatorId);
     }
 
-    public void addNomination(String creatorId, Nomination nomination){
+    public List<String> addNomination(String creatorId, Nomination nomination){
         int rowsAffected = 0;
         Connection connection = null;
         PreparedStatement statement = null;
-        if(addCandidates(nomination.getCandidateList())){
+        List<String> candidateIds = addCandidates(nomination.getCandidateList());
             try {
                 // below two lines are used for connectivity.
                 //Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(
                         jdbcProperties.getDatabaseUrl()+"/"+jdbcProperties.getDatabaseName(),
                         jdbcProperties.getUserName(), jdbcProperties.getPassword());
-                for(Candidate candidate : nomination.getCandidateList()){
+                for(String candidateId : candidateIds){
                     String sql = "insert into nomination values (?,?)";
                     statement = connection.prepareStatement(sql);
-                    statement.setString(1, candidate.getCandidateId());
+                    statement.setString(1, candidateId);
                     statement.setString(2, nomination.getEventId());
                     statement.executeUpdate();
                     rowsAffected++;
@@ -269,14 +283,16 @@ public class JDBCManager {
                 }
             }
             System.out.println(rowsAffected + " rows affected for nomination.");
-        }
+            return candidateIds;
     }
 
-    private boolean addCandidates(List<Candidate> candidateList){
+    private List<String> addCandidates(List<Candidate> candidateList){
         int rowsAffected = 0;
 
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<String> candidateIds = new ArrayList<>();
         try {
             // below two lines are used for connectivity.
             //Class.forName("com.mysql.cj.jdbc.Driver");
@@ -285,13 +301,16 @@ public class JDBCManager {
                     jdbcProperties.getUserName(), jdbcProperties.getPassword());
 
             for(Candidate candidate : candidateList){
-                String sql = "insert into candidate values (?,?,?)";
-                statement = connection.prepareStatement(sql);
-                statement.setString(1, candidate.getCandidateId());
-                statement.setString(2, candidate.getCandidateName());
-                statement.setString(3, candidate.getCandidateInfo());
+                String sql = "insert into candidate (candidate_name, candidate_info) values (?,?)";
+                statement = connection.prepareStatement(sql, new String[]{"candidate_id"});
+                statement.setString(1, candidate.getCandidateName());
+                statement.setString(2, candidate.getCandidateInfo());
                 statement.executeUpdate();
                 rowsAffected++;
+                resultSet = statement.getGeneratedKeys();
+                if(resultSet.next()){
+                    candidateIds.add(String.valueOf(resultSet.getLong(1)));
+                }
             }
         }
         catch (Exception exception) {
@@ -309,7 +328,7 @@ public class JDBCManager {
             }
         }
         System.out.println(rowsAffected + " rows affected for candidate");
-        return candidateList.size() == rowsAffected ? true : false;
+        return candidateIds;
     }
 
     public EventWithNomination getNominations(String eventId){

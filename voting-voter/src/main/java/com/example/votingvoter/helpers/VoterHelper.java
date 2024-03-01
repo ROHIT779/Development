@@ -1,6 +1,5 @@
 package com.example.votingvoter.helpers;
 
-import com.example.votingvoter.generator.IDGenerator;
 import com.example.votingvoter.jdbc.JDBCManager;
 import com.example.votingvoter.model.EventWithNomination;
 import com.example.votingvoter.model.Vote;
@@ -35,9 +34,8 @@ public class VoterHelper {
 
     public Voter createVoter(String eventId, Voter voter){
         if(jdbcManager.validateId(eventId,null,null)){
-            voter.setVoterId(IDGenerator.getRandomId());
             voter.setEventId(eventId);
-            jdbcManager.addVoter(voter);
+            voter.setVoterId(jdbcManager.addVoter(voter));
             return voter;
         }else{
             return null;
