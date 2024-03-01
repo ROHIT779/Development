@@ -1,6 +1,5 @@
 package com.example.votingvoter.resource;
 
-import com.example.votingvoter.generator.IDGenerator;
 import com.example.votingvoter.helpers.VoterHelper;
 import com.example.votingvoter.jdbc.JDBCManager;
 import com.example.votingvoter.model.Candidate;
