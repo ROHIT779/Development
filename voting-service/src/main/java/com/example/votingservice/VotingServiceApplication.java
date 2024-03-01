@@ -9,18 +9,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 @SpringBootApplication
 public class VotingServiceApplication {
 
-	@Bean
-	public RestTemplate getRestTemplate(){
-		return new RestTemplate();
-	}
+  @Bean
+  public RestTemplate getRestTemplate() {
+    return new RestTemplate();
+  }
 
-	@Bean
-	public WebClient.Builder getWebClientBuilder(){
-		return WebClient.builder();
-	}
+  @Bean
+  public WebClient.Builder getWebClientBuilder() {
+    return WebClient.builder();
+  }
 
-	public static void main(String[] args) {
-		SpringApplication.run(VotingServiceApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(VotingServiceApplication.class, args);
+  }
 }
