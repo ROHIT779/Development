@@ -4,60 +4,65 @@ import java.util.List;
 
 public class EventWithNomination {
 
-    private String eventId;
-    private String eventName;
-    private String eventInfo;
-    private String creatorId;
+  private String eventId;
+  private String eventName;
+  private String eventInfo;
+  private String creatorId;
 
-    private List<Candidate> candidateList;
-    public EventWithNomination() {
-    }
+  private List<Candidate> candidateList;
 
-    public String getCreatorId() {
-        return creatorId;
-    }
+  public EventWithNomination() {}
 
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
+  public String getCreatorId() {
+    return creatorId;
+  }
 
-    public List<Candidate> getCandidateList() {
-        return candidateList;
-    }
+  public void setCreatorId(String creatorId) {
+    this.creatorId = creatorId;
+  }
 
-    public void setCandidateList(List<Candidate> candidateList) {
-        this.candidateList = candidateList;
-    }
+  public List<Candidate> getCandidateList() {
+    return candidateList;
+  }
 
-    public EventWithNomination(String eventId, String eventName, String eventInfo, String creatorId, List<Candidate> candidateList) {
-        this.eventId = eventId;
-        this.eventName = eventName;
-        this.eventInfo = eventInfo;
-        this.creatorId = creatorId;
-        this.candidateList = candidateList;
-    }
+  public void setCandidateList(List<Candidate> candidateList) {
+    this.candidateList = candidateList;
+  }
 
-    public String getEventId() {
-        return eventId;
-    }
+  public EventWithNomination(
+      String eventId,
+      String eventName,
+      String eventInfo,
+      String creatorId,
+      List<Candidate> candidateList) {
+    this.eventId = eventId;
+    this.eventName = eventName;
+    this.eventInfo = eventInfo;
+    this.creatorId = creatorId;
+    this.candidateList = candidateList;
+  }
 
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
+  public String getEventId() {
+    return eventId;
+  }
 
-    public String getEventName() {
-        return eventName;
-    }
+  public void setEventId(String eventId) {
+    this.eventId = eventId;
+  }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
+  public String getEventName() {
+    return eventName;
+  }
 
-    public String getEventInfo() {
-        return eventInfo;
-    }
+  public void setEventName(String eventName) {
+    this.eventName = eventName;
+  }
 
-    public void setEventInfo(String eventInfo) {
-        this.eventInfo = eventInfo;
-    }
+  public String getEventInfo() {
+    return eventInfo;
+  }
+
+  public void setEventInfo(String eventInfo) {
+    this.eventInfo = eventInfo;
+  }
 }
