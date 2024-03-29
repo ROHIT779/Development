@@ -25,20 +25,28 @@ public class VoterHelper {
   }
 
   public Voter createVoter(String eventId, Voter voter) {
-    if (jdbcManager.validateId(eventId, null, null)) {
-      voter.setEventId(eventId);
-      voter.setVoterId(jdbcManager.addVoter(voter));
-      return voter;
-    } else {
+    if(!jdbcManager.isEventLocked(eventId)){
+      if (jdbcManager.validateId(eventId, null, null)) {
+        voter.setEventId(eventId);
+        voter.setVoterId(jdbcManager.addVoter(voter));
+        return voter;
+      } else {
+        return null;
+      }
+    }else{
       return null;
     }
   }
 
   public Voter castVote(String eventId, String voterId, Vote vote) throws SQLException {
-    if (jdbcManager.validateId(eventId, voterId, null)
-        && jdbcManager.validateId(eventId, null, vote.getCandidateId())) {
-      return jdbcManager.postVote(voterId, eventId, vote);
-    } else {
+    if (!jdbcManager.isEventLocked(eventId)) {
+      if (jdbcManager.validateId(eventId, voterId, null)
+              && jdbcManager.validateId(eventId, null, vote.getCandidateId())) {
+        return jdbcManager.postVote(voterId, eventId, vote);
+      } else {
+        return null;
+      }
+    }else{
       return null;
     }
   }

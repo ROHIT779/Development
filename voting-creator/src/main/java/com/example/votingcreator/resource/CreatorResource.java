@@ -78,4 +78,15 @@ public class CreatorResource {
       return new ResponseEntity(eventWithNomination, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @PutMapping("/{creatorId}/events/{eventId}")
+  public ResponseEntity lockEvent(
+          @PathVariable("creatorId") String creatorId,
+          @PathVariable("eventId") String eventId, @RequestBody Event event) {
+    boolean updateEventReply = helper.updateEvent(creatorId, eventId, event);
+    if (updateEventReply == true) {
+      return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+    }
+    return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+  }
 }

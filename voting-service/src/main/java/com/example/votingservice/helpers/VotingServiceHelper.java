@@ -46,9 +46,13 @@ public class VotingServiceHelper {
   }
 
   public VotingResult getResult(String eventId) {
-    if (jdbcManager.validateId("event_id", eventId)) {
-      return jdbcManager.getResult(eventId);
-    } else {
+    if(jdbcManager.isEventLocked(eventId)){
+      if (jdbcManager.validateId("event_id", eventId)) {
+        return jdbcManager.getResult(eventId);
+      } else {
+        return null;
+      }
+    }else{
       return null;
     }
   }
