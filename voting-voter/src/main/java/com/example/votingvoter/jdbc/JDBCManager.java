@@ -424,4 +424,49 @@ public class JDBCManager {
       System.out.println(exception);
     }
   }
+
+  public boolean isEventLocked(String eventId) {
+    boolean eventLocked = false;
+    Connection connection = null;
+    PreparedStatement statement = null;
+    ResultSet resultSet = null;
+    try {
+      // below two lines are used for connectivity.
+      // Class.forName("com.mysql.cj.jdbc.Driver");
+      connection =
+          DriverManager.getConnection(
+              jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
+              jdbcProperties.getUserName(),
+              jdbcProperties.getPassword());
+
+      // mydb is database
+      // mydbuser is name of database
+      // mydbuser is password of database
+
+      statement = connection.prepareStatement("select locked from event where event_id=?");
+      statement.setString(1, eventId);
+      resultSet = statement.executeQuery();
+      while (resultSet.next()) {
+        eventLocked = resultSet.getBoolean("locked");
+        System.out.println("Event locked? " + eventLocked);
+      }
+    } catch (Exception exception) {
+      System.out.println(exception);
+    } finally {
+      try {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+        if (statement != null) {
+          statement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
+      } catch (SQLException exception) {
+        System.out.println(exception);
+      }
+    }
+    return eventLocked;
+  }
 }

@@ -19,6 +19,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -146,6 +149,23 @@ class VotingCreatorApplicationTests {
         .isEqualTo(candidate2.getCandidateName());
     assertThat(nominationGetReply.getCandidateList().get(1).getCandidateInfo())
         .isEqualTo(candidate2.getCandidateInfo());
+
+    // Testing event lock
+    String updateEventUrl =
+        "http://localhost:"
+            + port
+            + "/service/creators/"
+            + creatorGetReply.getCreatorId()
+            + "/events/"
+            + eventGetReply.getEventId();
+    Event updatedEvent =
+        new Event(eventGetReply.getEventId(), "", "", creatorGetReply.getCreatorId());
+    HttpEntity<Event> updatedEventHttp = new HttpEntity<>(updatedEvent);
+    System.out.println(updateEventUrl);
+    ResponseEntity putResponse =
+        this.restTemplate.exchange(
+            updateEventUrl, HttpMethod.PUT, updatedEventHttp, ResponseEntity.class);
+    assertThat(putResponse.getStatusCodeValue()).isEqualTo(204);
   }
 
   @Test
