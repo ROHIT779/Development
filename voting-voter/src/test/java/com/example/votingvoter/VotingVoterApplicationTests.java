@@ -176,6 +176,99 @@ class VotingVoterApplicationTests {
         .isInstanceOf(HttpClientErrorException.BadRequest.class);
   }
 
+  @Test
+  void testVoterUnableToCreateEventLockedBadRequest() throws URISyntaxException {
+    lockEvent("e1");
+    Voter voter = new Voter();
+    voter.setVoterName("voter 1");
+    assertThatThrownBy(
+            () ->
+                this.restTemplate.postForObject(
+                    new URI("http://localhost:" + port + "/service/events/e1/voters/"),
+                    voter,
+                    Voter.class))
+        .isInstanceOf(HttpClientErrorException.BadRequest.class);
+  }
+
+  @Test
+  void testVoterUnableToVoteEventLockedBadRequest() throws URISyntaxException {
+    Voter voter = new Voter();
+    voter.setVoterName("voter 1");
+    Voter voterReply =
+        this.restTemplate.postForObject(
+            new URI("http://localhost:" + port + "/service/events/e1/voters/"), voter, Voter.class);
+    assertThat(voterReply.getVoterName()).isEqualTo("voter 1");
+    assertThat(voterReply.getEventId()).isEqualTo("e1");
+
+    Voter voterGetReply =
+        this.restTemplate.getForObject(
+            new URI(
+                "http://localhost:"
+                    + port
+                    + "/service/events/e1/voters/"
+                    + voterReply.getVoterId()),
+            Voter.class);
+    assertThat(voterGetReply.getVoterId()).isEqualTo(voterReply.getVoterId());
+    assertThat(voterGetReply.getVoterName()).isEqualTo(voterReply.getVoterName());
+    assertThat(voterGetReply.getEventId()).isEqualTo(voterReply.getEventId());
+    assertThat(voterGetReply.getVote()).isEqualTo(null);
+
+    lockEvent("e1");
+    Vote vote = new Vote();
+    vote.setCandidateId("cnd2");
+    assertThatThrownBy(
+            () ->
+                this.restTemplate.postForObject(
+                    new URI(
+                        "http://localhost:"
+                            + port
+                            + "/service/events/e1/voters/"
+                            + voterGetReply.getVoterId()
+                            + "/vote"),
+                    vote,
+                    Voter.class))
+        .isInstanceOf(HttpClientErrorException.BadRequest.class);
+  }
+
+  private boolean lockEvent(String eventId) {
+    int rowCount = 0;
+    Connection connection = null;
+    PreparedStatement statement = null;
+    try {
+      // below two lines are used for connectivity.
+      // Class.forName("com.mysql.cj.jdbc.Driver");
+      connection =
+          DriverManager.getConnection(
+              jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
+              jdbcProperties.getUserName(),
+              jdbcProperties.getPassword());
+
+      // mydb is database
+      // mydbuser is name of database
+      // mydbuser is password of database
+
+      statement = connection.prepareStatement("update event set locked=true where event_id=?");
+      statement.setString(1, eventId);
+      System.out.println(statement);
+      rowCount = statement.executeUpdate();
+      System.out.println("Row count after locking the event: " + rowCount);
+    } catch (Exception exception) {
+      System.out.println(exception);
+    } finally {
+      try {
+        if (statement != null) {
+          statement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
+      } catch (SQLException exception) {
+        System.out.println(exception);
+      }
+    }
+    return rowCount > 0 ? true : false;
+  }
+
   private int createCreator(
       Connection connection, String creatorId, String creatorName, String creatorInfo)
       throws SQLException {

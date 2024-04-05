@@ -97,6 +97,7 @@ class VotingServiceApplicationTests {
 
   @Test
   void testGetResultSuccess() throws URISyntaxException {
+    lockEvent("e1");
     VotingResult resultReply =
         restTemplate.getForObject(
             new URI("http://localhost:" + port + "/service/voting/events/e1/result"),
@@ -114,6 +115,16 @@ class VotingServiceApplicationTests {
             () ->
                 restTemplate.getForObject(
                     new URI("http://localhost:" + port + "/service/voting/events/e7/result"),
+                    VotingResult.class))
+        .isInstanceOf(HttpClientErrorException.BadRequest.class);
+  }
+
+  @Test
+  void testGetResultEventNotLockedBadRequest() throws URISyntaxException {
+    assertThatThrownBy(
+            () ->
+                restTemplate.getForObject(
+                    new URI("http://localhost:" + port + "/service/voting/events/e1/result"),
                     VotingResult.class))
         .isInstanceOf(HttpClientErrorException.BadRequest.class);
   }
@@ -250,5 +261,44 @@ class VotingServiceApplicationTests {
     statement.executeUpdate();
     statement.close();
     System.out.println("Voter Acknowledged");
+  }
+
+  private boolean lockEvent(String eventId) {
+    int rowCount = 0;
+    Connection connection = null;
+    PreparedStatement statement = null;
+    try {
+      // below two lines are used for connectivity.
+      // Class.forName("com.mysql.cj.jdbc.Driver");
+      connection =
+          DriverManager.getConnection(
+              jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
+              jdbcProperties.getUserName(),
+              jdbcProperties.getPassword());
+
+      // mydb is database
+      // mydbuser is name of database
+      // mydbuser is password of database
+
+      statement = connection.prepareStatement("update event set locked=true where event_id=?");
+      statement.setString(1, eventId);
+      System.out.println(statement);
+      rowCount = statement.executeUpdate();
+      System.out.println("Row count after locking the event: " + rowCount);
+    } catch (Exception exception) {
+      System.out.println(exception);
+    } finally {
+      try {
+        if (statement != null) {
+          statement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
+      } catch (SQLException exception) {
+        System.out.println(exception);
+      }
+    }
+    return rowCount > 0 ? true : false;
   }
 }

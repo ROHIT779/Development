@@ -47,10 +47,10 @@ public class CreatorHelper {
     System.out.println(creatorId);
     System.out.println(eventId);
     nomination.setEventId(eventId);
-    if(!jdbcManager.isEventLocked(eventId)){
+    if (!jdbcManager.isEventLocked(eventId)) {
       if (jdbcManager.validateId(creatorId, eventId)) {
         Iterator<String> candidateIdsIterator =
-                jdbcManager.addNomination(creatorId, nomination).iterator();
+            jdbcManager.addNomination(creatorId, nomination).iterator();
         for (Candidate candidate : nomination.getCandidateList()) {
           if (candidateIdsIterator.hasNext()) {
             candidate.setCandidateId(candidateIdsIterator.next());
@@ -60,7 +60,7 @@ public class CreatorHelper {
       } else {
         return null;
       }
-    }else{
+    } else {
       return null;
     }
   }
@@ -76,11 +76,11 @@ public class CreatorHelper {
     }
   }
 
-  public boolean updateEvent(String creatorId, String eventId, Event event){
+  public boolean updateEvent(String creatorId, String eventId, Event event) {
     boolean eventLocked = false;
     if (jdbcManager.validateId(creatorId, eventId)) {
-      System.out.println("Event in PUT request: "+event);
-      if(event.getEventName().isEmpty() && event.getEventInfo().isEmpty()){
+      System.out.println("Event in PUT request: " + event);
+      if (event.getEventName().isEmpty() && event.getEventInfo().isEmpty()) {
         eventLocked = jdbcManager.lockEvent(eventId);
       }
     }

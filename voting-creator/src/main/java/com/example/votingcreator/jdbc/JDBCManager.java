@@ -168,7 +168,8 @@ public class JDBCManager {
       // mydbuser is name of database
       // mydbuser is password of database
 
-      String sql = "insert into event (event_name, event_info, creator_id, locked) values (?,?,?,?)";
+      String sql =
+          "insert into event (event_name, event_info, creator_id, locked) values (?,?,?,?)";
       statement = connection.prepareStatement(sql, new String[] {"event_id"});
       statement.setString(1, eventName);
       statement.setString(2, eventInfo);
@@ -486,7 +487,7 @@ public class JDBCManager {
     }
   }
 
-  public boolean isEventLocked(String eventId){
+  public boolean isEventLocked(String eventId) {
     boolean eventLocked = false;
     Connection connection = null;
     PreparedStatement statement = null;
@@ -495,10 +496,10 @@ public class JDBCManager {
       // below two lines are used for connectivity.
       // Class.forName("com.mysql.cj.jdbc.Driver");
       connection =
-              DriverManager.getConnection(
-                      jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
-                      jdbcProperties.getUserName(),
-                      jdbcProperties.getPassword());
+          DriverManager.getConnection(
+              jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
+              jdbcProperties.getUserName(),
+              jdbcProperties.getPassword());
 
       // mydb is database
       // mydbuser is name of database
@@ -509,7 +510,7 @@ public class JDBCManager {
       resultSet = statement.executeQuery();
       while (resultSet.next()) {
         eventLocked = resultSet.getBoolean("locked");
-        System.out.println("Event locked? "+eventLocked);
+        System.out.println("Event locked? " + eventLocked);
       }
     } catch (Exception exception) {
       System.out.println(exception);
@@ -531,7 +532,7 @@ public class JDBCManager {
     return eventLocked;
   }
 
-  public boolean lockEvent(String eventId){
+  public boolean lockEvent(String eventId) {
     int rowCount = 0;
     Connection connection = null;
     PreparedStatement statement = null;
@@ -539,10 +540,10 @@ public class JDBCManager {
       // below two lines are used for connectivity.
       // Class.forName("com.mysql.cj.jdbc.Driver");
       connection =
-              DriverManager.getConnection(
-                      jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
-                      jdbcProperties.getUserName(),
-                      jdbcProperties.getPassword());
+          DriverManager.getConnection(
+              jdbcProperties.getDatabaseUrl() + "/" + jdbcProperties.getDatabaseName(),
+              jdbcProperties.getUserName(),
+              jdbcProperties.getPassword());
 
       // mydb is database
       // mydbuser is name of database
@@ -552,7 +553,7 @@ public class JDBCManager {
       statement.setString(1, eventId);
       System.out.println(statement);
       rowCount = statement.executeUpdate();
-      System.out.println("Row count after locking the event: "+rowCount);
+      System.out.println("Row count after locking the event: " + rowCount);
     } catch (Exception exception) {
       System.out.println(exception);
     } finally {

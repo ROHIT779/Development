@@ -25,7 +25,7 @@ public class VoterHelper {
   }
 
   public Voter createVoter(String eventId, Voter voter) {
-    if(!jdbcManager.isEventLocked(eventId)){
+    if (!jdbcManager.isEventLocked(eventId)) {
       if (jdbcManager.validateId(eventId, null, null)) {
         voter.setEventId(eventId);
         voter.setVoterId(jdbcManager.addVoter(voter));
@@ -33,7 +33,7 @@ public class VoterHelper {
       } else {
         return null;
       }
-    }else{
+    } else {
       return null;
     }
   }
@@ -41,12 +41,12 @@ public class VoterHelper {
   public Voter castVote(String eventId, String voterId, Vote vote) throws SQLException {
     if (!jdbcManager.isEventLocked(eventId)) {
       if (jdbcManager.validateId(eventId, voterId, null)
-              && jdbcManager.validateId(eventId, null, vote.getCandidateId())) {
+          && jdbcManager.validateId(eventId, null, vote.getCandidateId())) {
         return jdbcManager.postVote(voterId, eventId, vote);
       } else {
         return null;
       }
-    }else{
+    } else {
       return null;
     }
   }
