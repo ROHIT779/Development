@@ -7,15 +7,14 @@ import com.example.votingvoter.model.Voter;
 import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class VoterHelper {
 
-  //    @Autowired
-  //    private RestTemplate restTemplate;
+  @Autowired private RestTemplate restTemplate;
 
-  @Autowired private WebClient.Builder webClientBuilder;
+  //  @Autowired private WebClient.Builder webClientBuilder;
 
   private JDBCManager jdbcManager;
 
@@ -63,21 +62,27 @@ public class VoterHelper {
     EventWithNomination eventWithNomination = null;
     if (jdbcManager.validateId(eventId, null, null)) {
       String creatorId = jdbcManager.getCreatorFromEvent(eventId);
-      // eventWithNomination =
-      // restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
       eventWithNomination =
-          webClientBuilder
-              .build()
-              .get()
-              .uri(
-                  "http://localhost:8081/service/creators/"
-                      + creatorId
-                      + "/events/"
-                      + eventId
-                      + "/nominations")
-              .retrieve()
-              .bodyToMono(EventWithNomination.class)
-              .block();
+          restTemplate.getForObject(
+              "http://voting-creator/service/creators/"
+                  + creatorId
+                  + "/events/"
+                  + eventId
+                  + "/nominations",
+              EventWithNomination.class);
+      //      eventWithNomination =
+      //          webClientBuilder
+      //              .build()
+      //              .get()
+      //              .uri(
+      //                  "http://localhost:8081/service/creators/"
+      //                      + creatorId
+      //                      + "/events/"
+      //                      + eventId
+      //                      + "/nominations")
+      //              .retrieve()
+      //              .bodyToMono(EventWithNomination.class)
+      //              .block();
     }
     return eventWithNomination;
   }

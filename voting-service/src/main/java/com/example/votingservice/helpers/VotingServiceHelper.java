@@ -5,15 +5,14 @@ import com.example.votingservice.model.EventWithNomination;
 import com.example.votingservice.model.VotingResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class VotingServiceHelper {
 
-  //    @Autowired
-  //    private RestTemplate restTemplate;
+  @Autowired private RestTemplate restTemplate;
 
-  @Autowired private WebClient.Builder webClientBuilder;
+  //  @Autowired private WebClient.Builder webClientBuilder;
   private JDBCManager jdbcManager;
 
   @Autowired
@@ -24,21 +23,27 @@ public class VotingServiceHelper {
   public EventWithNomination getEvent(String eventId) {
     if (jdbcManager.validateId("event_id", eventId)) {
       String creatorId = jdbcManager.getCreatorFromEvent(eventId);
-      // EventWithNomination eventWithNomination =
-      // restTemplate.getForObject("http://localhost:8081/service/creators/"+creatorId+"/events/"+eventId+"/nominations", EventWithNomination.class);
       EventWithNomination eventWithNomination =
-          webClientBuilder
-              .build()
-              .get()
-              .uri(
-                  "http://localhost:8081/service/creators/"
-                      + creatorId
-                      + "/events/"
-                      + eventId
-                      + "/nominations")
-              .retrieve()
-              .bodyToMono(EventWithNomination.class)
-              .block();
+          restTemplate.getForObject(
+              "http://voting-creator/service/creators/"
+                  + creatorId
+                  + "/events/"
+                  + eventId
+                  + "/nominations",
+              EventWithNomination.class);
+      //      EventWithNomination eventWithNomination =
+      //          webClientBuilder
+      //              .build()
+      //              .get()
+      //              .uri(
+      //                  "http://localhost:8081/service/creators/"
+      //                      + creatorId
+      //                      + "/events/"
+      //                      + eventId
+      //                      + "/nominations")
+      //              .retrieve()
+      //              .bodyToMono(EventWithNomination.class)
+      //              .block();
       return eventWithNomination;
     } else {
       return null;
