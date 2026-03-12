@@ -1,0 +1,6 @@
+services:
+  voting-utility:
+    build:
+      context: .
+    ports:
+      - "8084:8084"
