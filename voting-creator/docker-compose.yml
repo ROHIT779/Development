@@ -4,6 +4,8 @@ services:
       context: .
     ports:
       - "8081:8081"
+    networks:
+      - database_net
 
   postgres:
     image: postgres:16
@@ -17,6 +19,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d/
+    networks:
+      - database_net
 volumes:
   postgres_data:
-
+networks:
+  database_net:
+    external: true
+    name: my_shared_network

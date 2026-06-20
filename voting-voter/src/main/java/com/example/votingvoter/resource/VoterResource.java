@@ -28,7 +28,7 @@ public class VoterResource {
     if (voterReply != null) {
       return new ResponseEntity(voterReply, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Voter) null, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -42,7 +42,7 @@ public class VoterResource {
     if (voter != null) {
       return new ResponseEntity(voter, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Voter) null, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -53,7 +53,7 @@ public class VoterResource {
     if (voter != null) {
       return new ResponseEntity(voter, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Voter) null, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -63,7 +63,7 @@ public class VoterResource {
     if (eventWithNomination != null) {
       return new ResponseEntity(eventWithNomination, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Voter) null, HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -4,3 +4,9 @@ services:
       context: .
     ports:
       - "8084:8084"
+    networks:
+      - database_net
+networks:
+  database_net:
+    external: true
+    name: my_shared_network

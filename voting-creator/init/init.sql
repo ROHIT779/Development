@@ -9,3 +9,8 @@ alter table event alter column event_id set default nextval('event_event_id_seq'
 alter table event add column "locked" boolean not null default false;
 create sequence candidate_candidate_id_seq owned by candidate.candidate_id;
 alter table candidate alter column candidate_id set default nextval('candidate_candidate_id_seq');
+
+create table voter(voter_id varchar(10), voter_name varchar(100) not null, event_id varchar(10), voted boolean default false,primary key(voter_id), constraint voterfk1 foreign key(event_id) references event(event_id));
+create sequence voter_voter_id_seq owned by voter.voter_id;
+alter table voter alter column voter_id set default nextval('voter_voter_id_seq');
+create table result(event_id varchar(10), candidate_id varchar(10), count integer default 0 check (count >= 0), constraint resultfk1 foreign key(event_id) references event(event_id), constraint resultfk2 foreign key(candidate_id) references candidate(candidate_id));

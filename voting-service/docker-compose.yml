@@ -1,0 +1,18 @@
+services:
+  voting-service:
+    build:
+      context: .
+    ports:
+      - "8083:8083"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=tata
+      - DB_NAME=testdb
+    networks:
+      - database_net
+networks:
+  database_net:
+    external: true
+    name: my_shared_network
