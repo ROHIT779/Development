@@ -165,7 +165,7 @@ class VotingCreatorApplicationTests {
     ResponseEntity putResponse =
         this.restTemplate.exchange(
             updateEventUrl, HttpMethod.PUT, updatedEventHttp, ResponseEntity.class);
-    assertThat(putResponse.getStatusCodeValue()).isEqualTo(204);
+    assertThat(putResponse.getStatusCode()).isEqualTo(204);
   }
 
   @Test

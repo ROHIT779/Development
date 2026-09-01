@@ -30,7 +30,7 @@ public class CreatorResource {
     if (creator != null) {
       return new ResponseEntity(creator, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Creator) null, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -41,7 +41,7 @@ public class CreatorResource {
     if (eventReply != null) {
       return new ResponseEntity(eventReply, HttpStatus.CREATED);
     }
-    return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+    return new ResponseEntity((Event) null, HttpStatus.BAD_REQUEST);
   }
 
   @GetMapping("/{creatorId}/events/{eventId}")
@@ -51,7 +51,7 @@ public class CreatorResource {
     if (event != null) {
       return new ResponseEntity<>(event, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Event) null, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -64,7 +64,7 @@ public class CreatorResource {
     if (nominationReply != null) {
       return new ResponseEntity(nominationReply, HttpStatus.CREATED);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((Nomination) null, HttpStatus.BAD_REQUEST);
     }
   }
 

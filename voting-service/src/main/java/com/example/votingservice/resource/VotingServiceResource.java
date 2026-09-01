@@ -23,7 +23,7 @@ public class VotingServiceResource {
     if (eventWithNomination != null) {
       return new ResponseEntity(eventWithNomination, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((EventWithNomination) null, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -33,7 +33,7 @@ public class VotingServiceResource {
     if (result != null) {
       return new ResponseEntity(result, HttpStatus.OK);
     } else {
-      return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity((VotingResult) null, HttpStatus.BAD_REQUEST);
     }
   }
 

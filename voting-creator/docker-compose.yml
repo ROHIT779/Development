@@ -1,0 +1,29 @@
+services:
+  voting-creator:
+    build:
+      context: .
+    ports:
+      - "8081:8081"
+    networks:
+      - database_net
+
+  postgres:
+    image: postgres:16
+    container_name: creator_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tata
+      POSTGRES_DB: testdb
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d/
+    networks:
+      - database_net
+volumes:
+  postgres_data:
+networks:
+  database_net:
+    external: true
+    name: my_shared_network
